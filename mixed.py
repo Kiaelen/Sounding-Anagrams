@@ -132,7 +132,8 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
 
     cutoff_latent = cfg.trainer.get("cutoff_latent", False)
     crop_image = cfg.trainer.get("crop_image", False)
-
+    anagram_balance_weight = cfg.trainer.get("anagram_balance_weight", [0.5, 0.5])
+    
     generator = torch.manual_seed(cfg.seed + idx)
 
     num_views = len(views)
@@ -149,16 +150,16 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     for i, t in enumerate(scheduler.timesteps):
         if i >= image_start_step: 
             viewed_noisy_images = []
-            for embeds, view_fn in zip(image_text_embeds, views):
+            for embeds, view_fn, weight in zip(image_text_embeds, views, anagram_balance_weight):
                 latent = view_fn.view(latents[0])[None, ...]
                 latent = estimate_noise(image_diffusion, latent, t, embeds, image_guidance_scale)[0]
-                latent = view_fn.inverse_view(latent)
+                latent = view_fn.inverse_view(latent) * weight
                 viewed_noisy_images.append(latent)
             
             image_noise = torch.stack(viewed_noisy_images)
             
             image_noise = image_noise.view(num_views, -1, image_diffusion.unet.config.in_channels, height // 8, width // 8)
-            image_noise = image_noise.mean(0)
+            image_noise = image_noise.sum(0)
             
         else: 
             image_noise = None

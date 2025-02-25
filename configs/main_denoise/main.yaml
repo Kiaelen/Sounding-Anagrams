@@ -25,6 +25,8 @@ trainer:
   enable_clip_rank: False
   top_ranks: 0.2
 
+  anagram_balance_weight: [0.3, 0.7]
+
   # image guidance
   image_prompt: ['a castle with bell towers, grayscale, lithograph style', 
                  'a painting of a horse']
