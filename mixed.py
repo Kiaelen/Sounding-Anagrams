@@ -62,7 +62,7 @@ def estimate_noise(diffusion, latents, t, text_embeddings, guidance_scale):
     return noise_pred
 
 
-@hydra.main(version_base="1.3", config_path="configs/main_denoise", config_name="main.yaml")
+@hydra.main(version_base="1.3", config_path="configs", config_name="main.yaml")
 def main(cfg: DictConfig) -> Optional[float]:
     """Main function for training
     """
