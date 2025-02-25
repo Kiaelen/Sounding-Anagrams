@@ -14,3 +14,7 @@ Bad performance due to **latent** diffusion (VAE lack robustness).
 <code> audio_prompt </code>
 
 <code> audio_weight </code>
+
+## how to run
+
+run exmaple_notebook.ipynb
