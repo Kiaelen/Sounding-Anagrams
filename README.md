@@ -17,4 +17,4 @@ Bad performance due to **latent** diffusion (VAE lack robustness).
 
 ## how to run
 
-run exmaple_notebook.ipynb
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Cj_SOwWNtn4z0XPShqs0Qu-Ib4lMhRis?usp=sharing)
