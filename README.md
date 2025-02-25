@@ -3,7 +3,7 @@
 Anagrams + Sound in a single image!
 Bad performance due to **latent** diffusion (VAE lack robustness).
 
-## Main paramters to tune in /configs/main.yaml.trainer
+## Main paramters to tune in /configs/main_denoise/main.yaml.trainer
 
 <code> views </code> This is the anagram type you want to create. See /visual_anagrams/\_\_init\_\_.py for type list.
 
