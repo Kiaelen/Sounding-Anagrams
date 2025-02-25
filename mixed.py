@@ -62,12 +62,12 @@ def estimate_noise(diffusion, latents, t, text_embeddings, guidance_scale):
     return noise_pred
 
 
-@hydra.main(version_base="1.3", config_path="../configs/main_denoise", config_name="main.yaml")
+@hydra.main(version_base="1.3", config_path="configs/main_denoise", config_name="main.yaml")
 def main(cfg: DictConfig) -> Optional[float]:
     """Main function for training
     """
 
-    views = get_views(cfg.trainer.views, view_args=cfg.trainer.views)
+    views = get_views(cfg.trainer.views)
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -138,31 +138,27 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     num_views = len(views)
 
     # obtain the text embeddings for each modality's diffusion process
-    image_text_embeds = encode_prompt(cfg.trainer.image_prompt, image_diffusion, device, negative_prompt=cfg.trainer.image_neg_prompt, time_repeat=1)
+    image_text_embeds = [encode_prompt(prompt, image_diffusion, device, negative_prompt=cfg.trainer.image_neg_prompt, time_repeat=1) for prompt in cfg.trainer.image_prompt]
     audio_text_embeds = encode_prompt(cfg.trainer.audio_prompt, audio_diffusion, device, negative_prompt=cfg.trainer.audio_neg_prompt, time_repeat=1)
 
     scheduler.set_timesteps(cfg.trainer.num_inference_steps)
 
     # init random latents
-    latents = torch.randn((image_text_embeds.shape[0] // 2, image_diffusion.unet.config.in_channels, height // 8, width // 8), generator=generator, dtype=image_diffusion.precision_t).to(device)
+    latents = torch.randn((image_text_embeds[0].shape[0] // 2, image_diffusion.unet.config.in_channels, height // 8, width // 8), generator=generator, dtype=image_diffusion.precision_t).to(device)
 
     for i, t in enumerate(scheduler.timesteps):
         if i >= image_start_step: 
-            # image_noise = estimate_noise(image_diffusion, latents, t, image_text_embeds, image_guidance_scale)
             viewed_noisy_images = []
-            for view_fn in views:
-                viewed_noisy_images.append(view_fn.view(latents[0]))
-            latents = torch.stack(viewed_noisy_images)
-            image_noise = estimate_noise(image_diffusion, latents, t, image_text_embeds, image_guidance_scale)
+            for embeds, view_fn in zip(image_text_embeds, views):
+                latent = view_fn.view(latents[0])[None, ...]
+                latent = estimate_noise(image_diffusion, latent, t, embeds, image_guidance_scale)[0]
+                latent = view_fn.inverse_view(latent)
+                viewed_noisy_images.append(latent)
             
-            inverted_preds = []
-            for pred, view in zip(image_noise, views):
-                inverted_pred = view.inverse_view(pred)
-                inverted_preds.append(inverted_pred)
-            image_noise = torch.stack(inverted_preds)
+            image_noise = torch.stack(viewed_noisy_images)
             
-            image_noise = image_noise.view(-1, num_views, image_diffusion.unet.config.in_channels, height // 8, width // 8)
-            image_noise = image_noise.mean(1)
+            image_noise = image_noise.view(num_views, -1, image_diffusion.unet.config.in_channels, height // 8, width // 8)
+            image_noise = image_noise.mean(0)
             
         else: 
             image_noise = None
@@ -189,10 +185,10 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
 
     if cutoff_latent and not crop_image:
         latents = latents[..., :-4] # we cut off 4 latents so that we can directly remove the black region
-
+    
     # Img latents -> imgs
     img = image_diffusion.decode_latents(latents) # [1, 3, H, W]
-
+    
     # Img latents -> audio
     audio_latents = latent_transformation(latents, inverse=False)
     spec = audio_diffusion.decode_latents(audio_latents).squeeze(0) # [3, 256, 1024]
@@ -207,16 +203,16 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
         audio = audio[:-audio_length]   
 
     # evaluate with CLIP
-    if visual_evaluator is not None:
-        clip_score = visual_evaluator(img, cfg.trainer.image_prompt)
-    else:
-        clip_score = None
+    # if visual_evaluator is not None:
+    #     clip_score = visual_evaluator(img, cfg.trainer.image_prompt[0])
+    # else:
+    clip_score = None
 
     # evaluate with CLAP
-    if audio_evaluator is not None:
-        clap_score = audio_evaluator(cfg.trainer.audio_prompt, audio)
-    else:
-        clap_score = None
+    # if audio_evaluator is not None:
+    #     clap_score = audio_evaluator(cfg.trainer.audio_prompt, audio)
+    # else:
+    clap_score = None
 
     sample_dir = os.path.join(cfg.output_dir, 'results', f'example_{str(idx+1).zfill(3)}')
     os.makedirs(sample_dir, exist_ok=True)
@@ -233,7 +229,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     # save image
     for i, view in enumerate(views):
         img_save_path = os.path.join(sample_dir, f'view{i}.img.png')
-        save_image(img, img_save_path)
+        save_image(view.view(img[0]), img_save_path)
 
     # save audio
     audio_save_path = os.path.join(sample_dir, f'audio.wav')
@@ -250,11 +246,11 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
         plt.imsave(spec_save_path, spec_colormap, cmap='gray')
 
     # save video 
-    video_output_path = os.path.join(sample_dir, f'video.mp4')
-    if img.shape[-2:] == spec.shape[-2:]:
-        create_single_image_animation_with_text(spec_save_path, audio_save_path, video_output_path, cfg.trainer.image_prompt, cfg.trainer.audio_prompt)
-    else:
-        create_animation_with_text(img_save_path, spec_save_path, audio_save_path, video_output_path, cfg.trainer.image_prompt, cfg.trainer.audio_prompt)
+    # video_output_path = os.path.join(sample_dir, f'video.mp4')
+    # if img.shape[-2:] == spec.shape[-2:]:
+    #     create_single_image_animation_with_text(spec_save_path, audio_save_path, video_output_path, cfg.trainer.image_prompt, cfg.trainer.audio_prompt)
+    # else:
+    #     create_animation_with_text(img_save_path, spec_save_path, audio_save_path, video_output_path, cfg.trainer.image_prompt, cfg.trainer.audio_prompt)
     
     return clip_score, clap_score
 
