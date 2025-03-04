@@ -6,10 +6,10 @@ defaults:
   - experiment: null
   - debug: null
 
-seed: 12345
+seed: 1234
 log_dir: 'results'
-task_name: 'soundify-denoise'
-output_dir: ${log_dir}
+task_name: 'tiger-train-train'
+output_dir: ${log_dir}/${task_name}
 
 trainer:
   num_samples: 1
@@ -28,18 +28,18 @@ trainer:
   anagram_balance_weight: [1, 1]
 
   # image guidance
-  image_prompt: ['a antique model car, grayscale', 
-          'a castle with bell towers, grayscale, lithograph style']
+  image_prompt: ['painting of cats, lithograph style, grayscale', 
+          'painting of sunflowers, lithograph style, grayscale']
   image_neg_prompt: ''
   image_guidance_scale: 10.0
   image_start_step: 5
 
   # audio guidance
-  audio_prompt: 'bell ringing'
+  audio_prompt: 'cats meowing'
   audio_neg_prompt: ''
   audio_guidance_scale: 10.0
   audio_start_step: 0
-  audio_weight: 0
+  audio_weight: 0.5
 
 audio_diffusion_guidance:
   _target_: src.guidance.auffusion.AuffusionGuidance

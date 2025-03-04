@@ -10,7 +10,7 @@ from .view_base import BaseView
 
 
 class PatchPermuteView(BaseView):
-    def __init__(self, num_patches=8):
+    def __init__(self, num_patches1, num_patches2):
         '''
         Implements random patch permutations, with `num_patches`
             patches per side
@@ -20,26 +20,28 @@ class PatchPermuteView(BaseView):
             of patches will be num_patches**2. Should be a power of 2.
         '''
 
-        assert 64 % num_patches == 0 and 256 % num_patches == 0, \
+        assert 64 % num_patches1 == 0 and 256 % num_patches1 == 0, \
             "`num_patches` must divide image side lengths of 64 and 256"
 
-        self.num_patches = num_patches
+        self.num_patches1 = num_patches1
+        self.num_patches2 = num_patches2
 
         # Get random permutation and inverse permutation
-        self.perm = torch.randperm(self.num_patches**2)
+        self.perm = torch.randperm(self.num_patches1 * self.num_patches2)
         self.perm_inv = get_inv_perm(self.perm)
 
     def view(self, im):
-        im_size = im.shape[-1]
+        h, w = im.shape[-2, -1]
 
         # Get number of pixels on one side of a patch
-        patch_size = int(im_size / self.num_patches)
+        patch_size1 = int(h / self.num_patches1)
+        patch_size2 = int(w / self.num_patches2)
 
         # Reshape into patches of size (c, patch_size, patch_size)
         patches = rearrange(im, 
                             'c (h p1) (w p2) -> (h w) c p1 p2', 
-                            p1=patch_size, 
-                            p2=patch_size)
+                            p1=patch_size1, 
+                            p2=patch_size2)
 
         # Permute
         patches = patches[self.perm]
@@ -47,23 +49,24 @@ class PatchPermuteView(BaseView):
         # Reshape back into image
         im_rearr = rearrange(patches, 
                              '(h w) c p1 p2 -> c (h p1) (w p2)', 
-                             h=self.num_patches, 
-                             w=self.num_patches, 
-                             p1=patch_size, 
-                             p2=patch_size)
+                             h=self.num_patches1, 
+                             w=self.num_patches2, 
+                             p1=patch_size1, 
+                             p2=patch_size2)
         return im_rearr
 
     def inverse_view(self, noise):
-        im_size = noise.shape[-1]
+        h, w = noise.shape[-2, -1]
 
         # Get number of pixels on one side of a patch
-        patch_size = int(im_size / self.num_patches)
+        patch_size1 = int(h / self.num_patches1)
+        patch_size2 = int(w / self.num_patches2)
 
         # Reshape into patches of size (c, patch_size, patch_size)
         patches = rearrange(noise, 
                             'c (h p1) (w p2) -> (h w) c p1 p2', 
-                            p1=patch_size, 
-                            p2=patch_size)
+                            p1=patch_size1, 
+                            p2=patch_size2)
 
         # Apply inverse permutation
         patches = patches[self.perm_inv]
@@ -71,10 +74,10 @@ class PatchPermuteView(BaseView):
         # Reshape back into image
         im_rearr = rearrange(patches, 
                              '(h w) c p1 p2 -> c (h p1) (w p2)', 
-                             h=self.num_patches, 
-                             w=self.num_patches, 
-                             p1=patch_size, 
-                             p2=patch_size)
+                             h=self.num_patches1, 
+                             w=self.num_patches2, 
+                             p1=patch_size1, 
+                             p2=patch_size2)
         return im_rearr
 
     def make_frame(self, im, t, knot_seed=0):

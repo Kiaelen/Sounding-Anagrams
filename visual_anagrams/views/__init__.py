@@ -59,7 +59,7 @@ def get_views(view_names, view_args=None):
 
     for view_name, view_arg in zip(view_names, view_args):
         if view_name == 'patch_permute':
-            args = [4 if view_arg is None else int(view_arg)]
+            args = [4, 16]
         elif view_name == 'pixel_permute':
             args = [64 if view_arg is None else int(view_arg)]
         elif view_name == 'skew':
