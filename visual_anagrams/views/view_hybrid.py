@@ -38,7 +38,7 @@ def make_frame_hybrid(im, t, resize_factor):
     return frame
 
 class HybridLowPassView(BaseView):
-    def __init__(self, sigma=2, kernel_size=33):
+    def __init__(self, sigma=2, kernel_size=15):
         self.sigma = sigma
         self.kernel_size = kernel_size
 
@@ -54,7 +54,7 @@ class HybridLowPassView(BaseView):
 
         # To account for two stages, scale kernel size and sigma
         # based on image size (either 64x64 or 256x256)
-        factor = h // 64
+        factor = 1
         k = self.kernel_size * factor + ((factor + 1) % 2)
         sigma = self.sigma * factor
 
@@ -65,7 +65,7 @@ class HybridLowPassView(BaseView):
 
 
 class HybridHighPassView(BaseView):
-    def __init__(self, sigma=2, kernel_size=33):
+    def __init__(self, sigma=2, kernel_size=15):
         self.sigma = sigma
         self.kernel_size = kernel_size
 
@@ -81,7 +81,7 @@ class HybridHighPassView(BaseView):
 
         # To account for two stages, scale kernel size and sigma
         # based on image size (either 64x64 or 256x256)
-        factor = h // 64
+        factor = 1
         k = self.kernel_size * factor + ((factor + 1) % 2)
         sigma = self.sigma * factor
 

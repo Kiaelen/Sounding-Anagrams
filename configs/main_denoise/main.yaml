@@ -6,40 +6,40 @@ defaults:
   - experiment: null
   - debug: null
 
-seed: 2024
-log_dir: 'logs'
+seed: 12345
+log_dir: 'results'
 task_name: 'soundify-denoise'
-output_dir: ${log_dir}/${task_name}
+output_dir: ${log_dir}
 
 trainer:
   num_samples: 1
   num_inference_steps: 100
   img_height: 256
-  img_width: 256
+  img_width: 1024
   cutoff_latent: false
   crop_image: false
   use_colormap: true
   reduction: 'mean'
-  views: ['identity', 'patch_permute']
+  views: ['low_pass', 'high_pass']
   enable_rank: False
   enable_clip_rank: False
   top_ranks: 0.2
 
-  anagram_balance_weight: [0.3, 0.7]
+  anagram_balance_weight: [1, 1]
 
   # image guidance
-  image_prompt: ['a castle with bell towers, grayscale, lithograph style', 
-                 'a orchard with trees, lithograph style']
+  image_prompt: ['a antique model car, grayscale', 
+          'a castle with bell towers, grayscale, lithograph style']
   image_neg_prompt: ''
   image_guidance_scale: 10.0
-  image_start_step: 10
+  image_start_step: 5
 
   # audio guidance
   audio_prompt: 'bell ringing'
   audio_neg_prompt: ''
   audio_guidance_scale: 10.0
   audio_start_step: 0
-  audio_weight: 0.4
+  audio_weight: 0
 
 audio_diffusion_guidance:
   _target_: src.guidance.auffusion.AuffusionGuidance
