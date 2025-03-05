@@ -1,7 +1,8 @@
-# Mixed-Diffusion
+# Sounding Anagrams
 
 Anagrams + Sound in a single image!
-Bad performance due to **latent** diffusion (VAE lack robustness).
+
+## Results
 
 ## Main paramters to tune in /configs/main_denoise/main.yaml.trainer
 
