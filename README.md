@@ -9,11 +9,13 @@ Adapted from [image-that-sound](https://github.com/IFICL/images-that-sound) and 
 
 We use the combined score 
 
-$$\displaystyle \epsilon^t_{\text{combined}}(z_t)=w_{\text{s}}\epsilon_{\theta_{s}}(z_t,t,y)+(1-w^{\text{s}})\sum_{v \in \text{views}}w_vv^{-1}(\epsilon_{\theta_{i}}(v(z_t),t,y))$$
+$$\displaystyle \epsilon^t_{\text{combined}}(z_t)=w_{\text{s}}\epsilon_{\theta_{s}}(z_t,t,y_s)+(1-w^{\text{s}})\sum_{v \in \text{views}}w_vv^{-1}(\epsilon_{\theta_{i}}(v(z_t),t,y_i))$$
 
 s.t. $w_v=1, \forall v$ for gaussian-blur hybrids and $\sum_v w_v=1$ for other anagram types.
 
-This can be done for all invertible views by the linearity of the denoising process.
+Here $z_t$ is the latent at timestep $t$; $w_s$ is the audio weight, $w_v$ is the anagram balance weight; $y_s$ is the audio prompt, $y_i$ is the image prompt; $\epsilon_{\theta_s}$ is the audio score predictor, $\epsilon_{\theta_i}$ is the image score predictor.
+
+This method works for all invertible views by the linearity of the denoising process.
 
 ## Results
 
