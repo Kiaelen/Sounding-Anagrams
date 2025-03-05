@@ -18,8 +18,8 @@ Download **audio** results in [assets](https://github.com/Kiaelen/Sounding-Anagr
 **audio_prompt:** bird chirping
 
 <div align="center">
-  <img width="45%" src="assets\gaussian\car-castle-bird\view0.img.png">
-  <img width="20%" src="assets\gaussian\car-castle-bird\view1.img.png">
+  <img width="100%" src="assets\gaussian\car-castle-bird\view0.img.png">
+  <img width="30%" src="assets\gaussian\car-castle-bird\view1.img.png">
 </div>
 
 ### Patch Permute Example
@@ -31,8 +31,8 @@ Download **audio** results in [assets](https://github.com/Kiaelen/Sounding-Anagr
 **audio_prompt:** bell ringing
 
 <div align="center">
-  <img width="45%" src="assets\permute\tree-castle-bell\view0.img.png">
-  <img width="45%" src="assets\permute\tree-castle-bell\view1.img.png">
+  <img width="100%" src="assets\permute\tree-castle-bell\view0.img.png">
+  <img width="100%" src="assets\permute\tree-castle-bell\view1.img.png">
 </div>
 
 ### Patch Rotate Example
@@ -44,8 +44,8 @@ Download **audio** results in [assets](https://github.com/Kiaelen/Sounding-Anagr
 **audio_prompt:** bird chirping
 
 <div align="center">
-  <img width="45%" src="assets\rotate\trees-helicopter-bird\view0.img.png">
-  <img width="45%" src="assets\rotate\trees-helicopter-bird\view1.img.png">
+  <img width="100%" src="assets\rotate\trees-helicopter-bird\view0.img.png">
+  <img width="100%" src="assets\rotate\trees-helicopter-bird\view1.img.png">
 </div>
 
 ## Main paramters to tune in [config](https://github.com/Kiaelen/Sounding-Anagrams/blob/main/configs/main_denoise/main.yaml).trainer
