@@ -4,6 +4,14 @@ Anagrams + Sound in a single image!
 
 ## Results
 
+<div align="center">
+  <img width="70%" alt="teaser" src="assets\gaussian\car-castle-bird\view0.img.png">
+  <img width="20%" alt="teaser" src="assets\gaussian\car-castle-bird\view1.img.png">
+  <audio controls autoplay>
+    <source src="assets\gaussian\car-castle-bird\audio.wav" type="audio/mpeg">
+  </audio>
+</div>
+
 ## Main paramters to tune in /configs/main_denoise/main.yaml.trainer
 
 <code> views </code> This is the anagram type you want to create. See /visual_anagrams/\_\_init\_\_.py for type list.
