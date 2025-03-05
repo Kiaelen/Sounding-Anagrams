@@ -8,7 +8,7 @@ defaults:
 
 seed: 3332333
 log_dir: 'results'
-task_name: 'tree_permute'
+task_name: 'test'
 output_dir: ${log_dir}/${task_name}
 
 trainer:
@@ -20,22 +20,22 @@ trainer:
   crop_image: false
   use_colormap: true
   reduction: 'mean'
-  views: ['identity', 'patch_permute']
+  views: ['identity', 'rotate_cw']
   enable_rank: False
   enable_clip_rank: False
   top_ranks: 0.2
 
-  anagram_balance_weight: [0.4, 0.6]
+  anagram_balance_weight: [0.6, 0.4]
 
   # image guidance
-  image_prompt: ['painting of trees, lithograph style, grayscale', 
-          'painting of castles, lithograph style, grayscale']
+  image_prompt: ['painting of a truck, lithograph style, grayscale', 
+          'painting of a castle, lithograph style, grayscale']
   image_neg_prompt: ''
   image_guidance_scale: 10.0
   image_start_step: 5
 
   # audio guidance
-  audio_prompt: 'bell ringing'
+  audio_prompt: 'tiger roar'
   audio_neg_prompt: ''
   audio_guidance_scale: 10.0
   audio_start_step: 0

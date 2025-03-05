@@ -2,6 +2,7 @@ from PIL import Image
 
 import torchvision.transforms.functional as TF
 from torchvision.transforms import InterpolationMode
+import torch
 
 from .view_base import BaseView
 from einops import rearrange
@@ -17,12 +18,13 @@ class Rotate90CWView(BaseView):
                             'c (h p1) (w p2) -> (h w) c p1 p2', 
                             p1=h, 
                             p2=h)
-        for patch in patches:
-            patch = TF.rotate(patch, -90, interpolation=InterpolationMode.NEAREST)
+        patches_copy = torch.ones(im.shape)
+        for i, patch in enumerate(patches):
+            patches[i] = TF.rotate(patch, -90, interpolation=InterpolationMode.NEAREST)
         im_rearr = rearrange(patches, 
                              '(h w) c p1 p2 -> c (h p1) (w p2)', 
                              h=1, 
-                             w=w/h, 
+                             w=w//h, 
                              p1=h, 
                              p2=h)
         return im_rearr
@@ -33,12 +35,12 @@ class Rotate90CWView(BaseView):
                             'c (h p1) (w p2) -> (h w) c p1 p2', 
                             p1=h, 
                             p2=h)
-        for patch in patches:
-            patch = TF.rotate(patch, 90, interpolation=InterpolationMode.NEAREST)
+        for i, patch in enumerate(patches):
+            patches[i] = TF.rotate(patch, 90, interpolation=InterpolationMode.NEAREST)
         im_rearr = rearrange(patches, 
                              '(h w) c p1 p2 -> c (h p1) (w p2)', 
                              h=1, 
-                             w=w/h, 
+                             w=w//h, 
                              p1=h, 
                              p2=h)
         return im_rearr
