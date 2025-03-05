@@ -4,7 +4,7 @@ import torchvision.transforms.functional as TF
 from torchvision.transforms import InterpolationMode
 
 from .view_base import BaseView
-
+from einops import rearrange
 
 class Rotate90CWView(BaseView):
     def __init__(self):
@@ -12,10 +12,36 @@ class Rotate90CWView(BaseView):
 
     def view(self, im):
         # TODO: Is nearest-exact better?
-        return TF.rotate(im, -90, interpolation=InterpolationMode.NEAREST)
+        h, w = im.shape[-2:]
+        patches = rearrange(im, 
+                            'c (h p1) (w p2) -> (h w) c p1 p2', 
+                            p1=h, 
+                            p2=h)
+        for patch in patches:
+            patch = TF.rotate(patch, -90, interpolation=InterpolationMode.NEAREST)
+        im_rearr = rearrange(patches, 
+                             '(h w) c p1 p2 -> c (h p1) (w p2)', 
+                             h=1, 
+                             w=w/h, 
+                             p1=h, 
+                             p2=h)
+        return im_rearr
 
     def inverse_view(self, noise):
-        return TF.rotate(noise, 90, interpolation=InterpolationMode.NEAREST)
+        h, w = noise.shape[-2:]
+        patches = rearrange(noise, 
+                            'c (h p1) (w p2) -> (h w) c p1 p2', 
+                            p1=h, 
+                            p2=h)
+        for patch in patches:
+            patch = TF.rotate(patch, 90, interpolation=InterpolationMode.NEAREST)
+        im_rearr = rearrange(patches, 
+                             '(h w) c p1 p2 -> c (h p1) (w p2)', 
+                             h=1, 
+                             w=w/h, 
+                             p1=h, 
+                             p2=h)
+        return im_rearr
 
     def make_frame(self, im, t):
         im_size = im.size[0]

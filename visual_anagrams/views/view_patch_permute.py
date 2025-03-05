@@ -31,7 +31,7 @@ class PatchPermuteView(BaseView):
         self.perm_inv = get_inv_perm(self.perm)
 
     def view(self, im):
-        h, w = im.shape[-2, -1]
+        h, w = im.shape[-2:]
 
         # Get number of pixels on one side of a patch
         patch_size1 = int(h / self.num_patches1)
@@ -56,7 +56,7 @@ class PatchPermuteView(BaseView):
         return im_rearr
 
     def inverse_view(self, noise):
-        h, w = noise.shape[-2, -1]
+        h, w = noise.shape[-2:]
 
         # Get number of pixels on one side of a patch
         patch_size1 = int(h / self.num_patches1)

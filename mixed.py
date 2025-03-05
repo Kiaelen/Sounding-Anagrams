@@ -228,18 +228,18 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     OmegaConf.save(current_cfg, cfg_save_path)
     
     # save image
-    # for i, view in enumerate(views):
-    #     img_save_path = os.path.join(sample_dir, f'view{i}.img.png')
-    #     save_image(view.view(img[0]), img_save_path)
-    # high pass:
-    img_save_path = os.path.join(sample_dir, f'view{0}.img.png')
-    save_image(img[0], img_save_path)
-    # low pass:
-    low_pass = get_views(["low_pass"], [10])[0]
-    h, w = img[0].shape[1:]
-    resized_img = transforms.Resize((h // 8, w // 8))(low_pass.inverse_view(img[0]))
-    img_save_path = os.path.join(sample_dir, f'view{1}.img.png')
-    save_image(resized_img, img_save_path)
+    for i, view in enumerate(views):
+        img_save_path = os.path.join(sample_dir, f'view{i}.img.png')
+        save_image(view.view(img[0]), img_save_path)
+    # # high pass:
+    # img_save_path = os.path.join(sample_dir, f'view{0}.img.png')
+    # save_image(img[0], img_save_path)
+    # # low pass:
+    # low_pass = get_views(["low_pass"], [10])[0]
+    # h, w = img[0].shape[1:]
+    # resized_img = transforms.Resize((h // 8, w // 8))(low_pass.inverse_view(img[0]))
+    # img_save_path = os.path.join(sample_dir, f'view{1}.img.png')
+    # save_image(resized_img, img_save_path)
 
     # save audio
     audio_save_path = os.path.join(sample_dir, f'audio.wav')

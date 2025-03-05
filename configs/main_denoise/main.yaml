@@ -6,9 +6,9 @@ defaults:
   - experiment: null
   - debug: null
 
-seed: 1234
+seed: 3332333
 log_dir: 'results'
-task_name: 'tiger-train-train'
+task_name: 'tree_permute'
 output_dir: ${log_dir}/${task_name}
 
 trainer:
@@ -20,26 +20,26 @@ trainer:
   crop_image: false
   use_colormap: true
   reduction: 'mean'
-  views: ['low_pass', 'high_pass']
+  views: ['identity', 'patch_permute']
   enable_rank: False
   enable_clip_rank: False
   top_ranks: 0.2
 
-  anagram_balance_weight: [1, 1]
+  anagram_balance_weight: [0.4, 0.6]
 
   # image guidance
-  image_prompt: ['painting of cats, lithograph style, grayscale', 
-          'painting of sunflowers, lithograph style, grayscale']
+  image_prompt: ['painting of trees, lithograph style, grayscale', 
+          'painting of castles, lithograph style, grayscale']
   image_neg_prompt: ''
   image_guidance_scale: 10.0
   image_start_step: 5
 
   # audio guidance
-  audio_prompt: 'cats meowing'
+  audio_prompt: 'bell ringing'
   audio_neg_prompt: ''
   audio_guidance_scale: 10.0
   audio_start_step: 0
-  audio_weight: 0.5
+  audio_weight: 0.4
 
 audio_diffusion_guidance:
   _target_: src.guidance.auffusion.AuffusionGuidance
