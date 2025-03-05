@@ -2,7 +2,6 @@ from PIL import Image
 
 import torchvision.transforms.functional as TF
 from torchvision.transforms import InterpolationMode
-import torch
 
 from .view_base import BaseView
 from einops import rearrange
@@ -14,11 +13,10 @@ class Rotate90CWView(BaseView):
     def view(self, im):
         # TODO: Is nearest-exact better?
         h, w = im.shape[-2:]
-        patches = rearrange(im, 
+        patches = rearrange(im.clone(), 
                             'c (h p1) (w p2) -> (h w) c p1 p2', 
                             p1=h, 
                             p2=h)
-        patches_copy = torch.ones(im.shape)
         for i, patch in enumerate(patches):
             patches[i] = TF.rotate(patch, -90, interpolation=InterpolationMode.NEAREST)
         im_rearr = rearrange(patches, 
@@ -31,7 +29,7 @@ class Rotate90CWView(BaseView):
 
     def inverse_view(self, noise):
         h, w = noise.shape[-2:]
-        patches = rearrange(noise, 
+        patches = rearrange(noise.clone(), 
                             'c (h p1) (w p2) -> (h w) c p1 p2', 
                             p1=h, 
                             p2=h)
