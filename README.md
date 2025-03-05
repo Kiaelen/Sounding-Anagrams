@@ -5,6 +5,16 @@
 Adapted from [image-that-sound](https://github.com/IFICL/images-that-sound) and [visual anagrams](https://github.com/dangeng/visual_anagrams).
 <hr>
 
+## Method
+
+We use the combined score 
+
+$$\displaystyle \epsilon^t_{\text{combined}}(z_t)=w_{\text{s}}\epsilon_{\theta_{s}}(z_t,t,y)+(1-w^{\text{s}})\sum_{v \in \text{views}}w_vv^{-1}(\epsilon_{\theta_{i}}(v(z_t),t,y))$$
+
+s.t. $w_v=1, \forall v$ for gaussian-blur hybrids and $\sum_v w_v=1$ for other anagram types.
+
+This can be done for all invertible views by the linearity of the denoising process.
+
 ## Results
 
 Download **audio** results in [assets](https://github.com/Kiaelen/Sounding-Anagrams/tree/main/assets).
