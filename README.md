@@ -49,7 +49,7 @@ Download **audio** results in [assets](https://github.com/Kiaelen/Sounding-Anagr
 
   **image_prompt:**
   - painting of a garden, lithograph style, grayscale
-  - paiting of a helicopter, lithograph style, grayscale ~~(the result is a plane)~~
+  - paiting of a helicopter, lithograph style, grayscale ~~(the result is actually a jet plane)~~
 
 **audio_prompt:** bird chirping
 
