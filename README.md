@@ -81,6 +81,10 @@ VAE Decoder cannot preserve boundaries properly as can be seen in the patch perm
 
 Black strip identifid in generated images as Auffusion denoising results.
 
+### Why not colorized
+
+Colorization as post-processing tend to yield bad results, as shown in experiments, especially for the task of sounding-anagram generation that involves intricate semantics.
+
 ## How to run
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Cj_SOwWNtn4z0XPShqs0Qu-Ib4lMhRis?usp=sharing)
