@@ -140,7 +140,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
 
     # obtain the text embeddings for each modality's diffusion process
     image_text_embeds = [encode_prompt(prompt, image_diffusion, device, negative_prompt=cfg.trainer.image_neg_prompt, time_repeat=1) for prompt in cfg.trainer.image_prompt]
-    audio_text_embeds = encode_prompt(cfg.trainer.audio_prompt, audio_diffusion, device, negative_prompt=cfg.trainer.audio_neg_prompt, time_repeat=1)
+    audio_text_embeds = [encode_prompt(prompt, audio_diffusion, device, negative_prompt=cfg.trainer.image_neg_prompt, time_repeat=1) for prompt in cfg.trainer.audio_prompt]
 
     scheduler.set_timesteps(cfg.trainer.num_inference_steps)
 
@@ -148,6 +148,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     latents = torch.randn((image_text_embeds[0].shape[0] // 2, image_diffusion.unet.config.in_channels, height // 8, width // 8), generator=generator, dtype=image_diffusion.precision_t).to(device)
 
     for i, t in enumerate(scheduler.timesteps):
+        # multiview image noise
         if i >= image_start_step: 
             viewed_noisy_images = []
             for embeds, view_fn, weight in zip(image_text_embeds, views, anagram_balance_weight):
@@ -155,28 +156,35 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
                 latent = estimate_noise(image_diffusion, latent, t, embeds, image_guidance_scale)[0]
                 latent = view_fn.inverse_view(latent) * weight
                 viewed_noisy_images.append(latent)
-            
-            image_noise = torch.stack(viewed_noisy_images)
-            
-            image_noise = image_noise.view(num_views, -1, image_diffusion.unet.config.in_channels, height // 8, width // 8)
-            image_noise = image_noise.sum(0)
-            
-        else: 
-            image_noise = None
+            else: 
+                image_noise = None
+                
+        # multiview audio noise
+        if i >= audio_start_step:
+            viewed_noisy_audio = []
+            for embeds, view_fn, weight in zip(audio_text_embeds, views, anagram_balance_weight):
+                latent = view_fn.view(latents[0])[None, ...]
+                transform_latent = latent_transformation(latent, inverse=False)
+                transform_latent = estimate_noise(audio_diffusion, transform_latent, t, embeds, audio_guidance_scale)
+                latent = latent_transformation(transform_latent, inverse=True)[0]
+                latent = view_fn.inverse_view(latent) * weight
+                viewed_noisy_audio.append(latent)
+            else: 
+                audio_noise = None
         
-        if i >= audio_start_step: 
-            transform_latents = latent_transformation(latents, inverse=False)
-            audio_noise = estimate_noise(audio_diffusion, transform_latents, t, audio_text_embeds, audio_guidance_scale)
-            audio_noise = latent_transformation(audio_noise, inverse=True)
-        else: 
-            audio_noise = None
+        image_noise = torch.stack(viewed_noisy_images)
+        audio_noise = torch.stack(viewed_noisy_audio)
         
         if image_noise is not None and audio_noise is not None:
             noise_pred = (1.0 - audio_weight) * image_noise + audio_weight * audio_noise
+            noise_pred = noise_pred.view(num_views, -1, image_diffusion.unet.config.in_channels, height // 8, width // 8)
+            noise_pred = noise_pred.sum(0)
         elif image_noise is not None and audio_noise is None:
-            noise_pred = image_noise
+            noise_pred = image_noise.view(num_views, -1, image_diffusion.unet.config.in_channels, height // 8, width // 8)
+            noise_pred = noise_pred.sum(0)
         elif image_noise is None and audio_noise is not None:
-            noise_pred = audio_noise
+            noise_pred = audio_noise.view(num_views, -1, image_diffusion.unet.config.in_channels, height // 8, width // 8)
+            noise_pred = noise_pred.sum(0)
         else: 
             log.info("No estimated noise! Exit.")
             raise NotImplementedError
