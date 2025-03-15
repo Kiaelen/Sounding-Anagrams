@@ -25,7 +25,7 @@ trainer:
   enable_clip_rank: False
   top_ranks: 0.2
 
-  anagram_balance_weight: [0.6, 0.4]
+  anagram_balance_weight: [0.4, 0.6]
 
   # image guidance
   image_prompt: ['painting of trucks, lithograph style, grayscale', 
