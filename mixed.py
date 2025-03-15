@@ -156,8 +156,9 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
                 latent = estimate_noise(image_diffusion, latent, t, embeds, image_guidance_scale)[0]
                 latent = view_fn.inverse_view(latent) * weight
                 viewed_noisy_images.append(latent)
-            else: 
-                image_noise = None
+            image_noise = torch.stack(viewed_noisy_images)
+        else: 
+            image_noise = None
                 
         # multiview audio noise
         if i >= audio_start_step:
@@ -169,11 +170,9 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
                 latent = latent_transformation(transform_latent, inverse=True)[0]
                 latent = view_fn.inverse_view(latent) * weight
                 viewed_noisy_audio.append(latent)
-            else: 
-                audio_noise = None
-        
-        image_noise = torch.stack(viewed_noisy_images)
-        audio_noise = torch.stack(viewed_noisy_audio)
+            audio_noise = torch.stack(viewed_noisy_audio)
+        else: 
+            audio_noise = None
         
         if image_noise is not None and audio_noise is not None:
             noise_pred = (1.0 - audio_weight) * image_noise + audio_weight * audio_noise
