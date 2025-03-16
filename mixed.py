@@ -132,7 +132,8 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
 
     cutoff_latent = cfg.trainer.get("cutoff_latent", False)
     crop_image = cfg.trainer.get("crop_image", False)
-    anagram_balance_weight = cfg.trainer.get("anagram_balance_weight", [0.5, 0.5])
+    anagram_image_weight = cfg.trainer.get("anagram_image_weight", [0.5, 0.5])
+    anagram_audio_weight = cfg.trainer.get("anagram_audio_weight", [0.5, 0.5])
     
     generator = torch.manual_seed(cfg.seed + idx)
 
@@ -151,7 +152,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
         # multiview image noise
         if i >= image_start_step: 
             viewed_noisy_images = []
-            for embeds, view_fn, weight in zip(image_text_embeds, views, anagram_balance_weight):
+            for embeds, view_fn, weight in zip(image_text_embeds, views, anagram_image_weight):
                 latent = view_fn.view(latents[0])[None, ...]
                 latent = estimate_noise(image_diffusion, latent, t, embeds, image_guidance_scale)[0]
                 latent = view_fn.inverse_view(latent) * weight
@@ -163,7 +164,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
         # multiview audio noise
         if i >= audio_start_step:
             viewed_noisy_audio = []
-            for embeds, view_fn, weight in zip(audio_text_embeds, views, anagram_balance_weight):
+            for embeds, view_fn, weight in zip(audio_text_embeds, views, anagram_audio_weight):
                 latent = view_fn.view(latents[0])[None, ...]
                 transform_latent = latent_transformation(latent, inverse=False)
                 transform_latent = estimate_noise(audio_diffusion, transform_latent, t, embeds, audio_guidance_scale)
@@ -247,25 +248,26 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     OmegaConf.save(current_cfg, cfg_save_path)
     
     # save image
-    image_dir = os.path.join(sample_dir, 'image')
-    os.makedirs(image_dir, exist_ok=True)
-    for view_name, view in zip(cfg.trainer.views, views):
-        img_save_path = os.path.join(image_dir, f'{view_name}.png')
-        save_image(viewed_image[view_name], img_save_path)
-    # # save high/low pass image:
-    # img_save_path = os.path.join(sample_dir, f'view{0}.img.png')
-    # save_image(img[0], img_save_path)
-    # # low pass:
-    # low_pass = get_views(["low_pass"], [10])[0]
-    # h, w = img[0].shape[1:]
-    # resized_img = transforms.Resize((h // 8, w // 8))(low_pass.inverse_view(img[0]))
-    # img_save_path = os.path.join(sample_dir, f'view{1}.img.png')
-    # save_image(resized_img, img_save_path)
+    if not "pass" in cfg.trainer.views[0]:
+        image_dir = os.path.join(sample_dir, 'image')
+        os.makedirs(image_dir, exist_ok=True)
+        for view_name in cfg.trainer.views:
+            img_save_path = os.path.join(image_dir, f'{view_name}.png')
+            save_image(viewed_image[view_name], img_save_path)
+    else: # save high/low pass image:
+        for view_name in cfg.trainer.views:
+            img_save_path = os.path.join(image_dir, f'{view_name}.png')
+            if view_name == "high_pass":        
+                save_image(img[0], img_save_path)
+            else: # low pass: 
+                h, w = img[0].shape[1:]
+                resized_img = transforms.Resize((h // 8, w // 8))(viewed_image[view_name])
+                save_image(resized_img, img_save_path)
 
     # save audio
     audio_dir = os.path.join(sample_dir, 'audio')
     os.makedirs(audio_dir, exist_ok=True)
-    for view_name, view in zip(cfg.trainer.views, views):
+    for view_name in cfg.trainer.views:
         audio_save_path = os.path.join(audio_dir, f'{view_name}.wav')
         save_audio(viewed_audio[view_name], audio_save_path)
 

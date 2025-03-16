@@ -39,8 +39,10 @@ trainer:
   # audio guidance
   audio_prompt: ['trucks beeping', 'bell ringing']
 
-  # anagram balance weight
-  anagram_balance_weight: [0.5, 0.5]
+  # anagram image weight
+  anagram_image_weight: [0.4, 0.6]
+  # anagram audio weight
+  anagram_audio_weight: [0.5, 0.5]
 
   # audio_weight
   audio_weight: 0.4
