@@ -234,7 +234,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     else:
         clap_score = None
 
-    sample_dir = os.path.join(cfg.output_dir, f'example_{str(idx+1).zfill(3)}')
+    sample_dir = os.path.join(cfg.output_dir, 'results', f'example_{str(idx+1).zfill(3)}')
     os.makedirs(sample_dir, exist_ok=True)
 
     # save config with example-specific information 
