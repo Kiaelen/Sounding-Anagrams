@@ -236,8 +236,10 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     OmegaConf.save(current_cfg, cfg_save_path)
     
     # save image
+    image_dir = os.path.join(sample_dir, 'image')
+    os.makedirs(image_dir, exist_ok=True)
     for view_name, view in zip(cfg.trainer.views, views):
-        img_save_path = os.path.join(sample_dir, 'image', f'view_name.img.png')
+        img_save_path = os.path.join(image_dir, f'view_name.img.png')
         save_image(view.view(img[0]), img_save_path)
     # # high pass:
     # img_save_path = os.path.join(sample_dir, f'view{0}.img.png')
