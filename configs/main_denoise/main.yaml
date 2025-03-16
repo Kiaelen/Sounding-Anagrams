@@ -25,13 +25,18 @@ trainer:
   enable_clip_rank: False
   top_ranks: 0.2
 
+  # anagram balance
   anagram_balance_weight: [0.4, 0.6]
 
   # image guidance
   image_prompt: ['painting of trucks, lithograph style, grayscale', 
           'painting of a bell tower, lithograph style, grayscale']
+
   # audio guidance
   audio_prompt: ['truck beeping', 'bell ringing']
+  
+  # audio_weight
+  audio_weight: 0.4
 
   image_neg_prompt: ''
   image_guidance_scale: 10.0
@@ -41,7 +46,6 @@ trainer:
   audio_neg_prompt: ''
   audio_guidance_scale: 10.0
   audio_start_step: 0
-  audio_weight: 0.4
 
 audio_diffusion_guidance:
   _target_: src.guidance.auffusion.AuffusionGuidance
