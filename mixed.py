@@ -201,8 +201,8 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     audio_latents = latent_transformation(latents, inverse=False)
     spec = audio_diffusion.decode_latents(audio_latents).squeeze(0) # [3, 256, 1024]
     audio = audio_diffusion.spec_to_audio(spec)
-    audio = np.ravel(audio)
     print(audio.shape)
+    audio = np.ravel(audio)
 
     if crop_image and not cutoff_latent:
         pixel = 32
