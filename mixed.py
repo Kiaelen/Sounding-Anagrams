@@ -194,34 +194,45 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     if cutoff_latent and not crop_image:
         latents = latents[..., :-4] # we cut off 4 latents so that we can directly remove the black region
     
-    # Img latents -> imgs
+    # Img latents -> Viewed imgs
     img = image_diffusion.decode_latents(latents) # [1, 3, H, W]
+    viewed_image = {}
+    for view_name, view in zip(cfg.trainer.views, views):
+        viewed_image[view_name] = view.view(img[0])
     
-    # Img latents -> audio
+    # Img latents -> Viewed audio
     audio_latents = latent_transformation(latents, inverse=False)
     spec = audio_diffusion.decode_latents(audio_latents).squeeze(0) # [3, 256, 1024]
-    audio = audio_diffusion.spec_to_audio(spec)
-    print(audio.shape)
-    audio = np.ravel(audio)
+    
+    viewed_audio = {}
+    for view_name, view in zip(cfg.trainer.views, views):
+        viewed_spec = view.view(spec)
+        audio = audio_diffusion.spec_to_audio(viewed_spec)
+        audio = np.ravel(audio)
+        viewed_audio[view_name] = audio
 
-    if crop_image and not cutoff_latent:
-        pixel = 32
-        audio_length = int(pixel / width * audio.shape[0])
-        img = img[..., :-pixel]
-        spec = spec[..., :-pixel] 
-        audio = audio[:-audio_length]   
+    # if crop_image and not cutoff_latent:
+    #     pixel = 32
+    #     audio_length = int(pixel / width * audio.shape[0])
+    #     img = img[..., :-pixel]
+    #     spec = spec[..., :-pixel] 
+    #     audio = audio[:-audio_length]   
 
     # evaluate with CLIP
-    # if visual_evaluator is not None:
-    #     clip_score = visual_evaluator(img, cfg.trainer.image_prompt[0])
-    # else:
-    clip_score = None
+    clip_score = 0
+    if visual_evaluator is not None:
+        for i, img in enumerate(viewed_image.values()):
+            clip_score += visual_evaluator(img, cfg.trainer.image_prompt[i])
+    else:
+        clip_score = None
 
     # evaluate with CLAP
-    # if audio_evaluator is not None:
-    #     clap_score = audio_evaluator(cfg.trainer.audio_prompt, audio)
-    # else:
-    clap_score = None
+    clap_score = 0
+    if audio_evaluator is not None:
+        for i, audio in enumerate(viewed_audio.values()):
+            clap_score += audio_evaluator(cfg.trainer.audio_prompt[i], audio)
+    else:
+        clap_score = None
 
     sample_dir = os.path.join(cfg.output_dir, 'results', f'example_{str(idx+1).zfill(3)}')
     os.makedirs(sample_dir, exist_ok=True)
@@ -239,9 +250,9 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     image_dir = os.path.join(sample_dir, 'image')
     os.makedirs(image_dir, exist_ok=True)
     for view_name, view in zip(cfg.trainer.views, views):
-        img_save_path = os.path.join(image_dir, f'view_name.img.png')
-        save_image(view.view(img[0]), img_save_path)
-    # # high pass:
+        img_save_path = os.path.join(image_dir, f'{view_name}.png')
+        save_image(viewed_image[view_name], img_save_path)
+    # # save high/low pass image:
     # img_save_path = os.path.join(sample_dir, f'view{0}.img.png')
     # save_image(img[0], img_save_path)
     # # low pass:
@@ -252,8 +263,11 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     # save_image(resized_img, img_save_path)
 
     # save audio
-    audio_save_path = os.path.join(sample_dir, f'audio.wav')
-    save_audio(audio, audio_save_path)
+    audio_dir = os.path.join(sample_dir, 'audio')
+    os.makedirs(audio_dir, exist_ok=True)
+    for view_name, view in zip(cfg.trainer.views, views):
+        audio_save_path = os.path.join(audio_dir, f'{view_name}.wav')
+        save_audio(viewed_audio[view_name], audio_save_path)
 
     # save spec
     spec_save_path = os.path.join(sample_dir, f'spec.png')
