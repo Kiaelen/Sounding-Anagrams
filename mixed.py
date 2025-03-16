@@ -202,6 +202,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     spec = audio_diffusion.decode_latents(audio_latents).squeeze(0) # [3, 256, 1024]
     audio = audio_diffusion.spec_to_audio(spec)
     audio = np.ravel(audio)
+    print(audio.shape)
 
     if crop_image and not cutoff_latent:
         pixel = 32
@@ -235,8 +236,8 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     OmegaConf.save(current_cfg, cfg_save_path)
     
     # save image
-    for i, view in enumerate(views):
-        img_save_path = os.path.join(sample_dir, f'view{i}.img.png')
+    for view_name, view in zip(cfg.trainer.views, views):
+        img_save_path = os.path.join(sample_dir, 'image', f'view_name.img.png')
         save_image(view.view(img[0]), img_save_path)
     # # high pass:
     # img_save_path = os.path.join(sample_dir, f'view{0}.img.png')
