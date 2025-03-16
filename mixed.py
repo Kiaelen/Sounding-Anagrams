@@ -222,7 +222,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     clip_score = 0
     if visual_evaluator is not None:
         for i, img in enumerate(viewed_image.values()):
-            clip_score += visual_evaluator(img, cfg.trainer.image_prompt[i])
+            clip_score += visual_evaluator(img[None, ...], cfg.trainer.image_prompt[i])
     else:
         clip_score = None
 
