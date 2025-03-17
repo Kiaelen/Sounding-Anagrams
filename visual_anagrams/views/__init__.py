@@ -67,7 +67,7 @@ def get_views(view_names, view_args=None):
         elif view_name == 'skew':
             args = [1.5 if view_arg is None else float(view_arg)]
         elif view_name in ['low_pass', 'high_pass']:
-            args = [1.0 if view_arg is None else float(view_arg)]
+            args = [1.5 if view_arg is None else float(view_arg)]
         elif view_name in ['scale']:
             args = [0.5 if view_arg is None else float(view_arg)]
         else:
