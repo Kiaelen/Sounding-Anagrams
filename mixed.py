@@ -208,17 +208,14 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
             viewed_image[view_name] = view.view(img[0])
         else:
             if "high" in view_name:
-                print(view_name)
-                viewed_image[view_name] = view.inverse_view(img[0])
+                viewed_image[view_name] = img[0]
             else:
-                print(view_name)
-                viewed_image[view_name] = view.inverse_view(img[0])
-                # viewed_image[view_name] = transforms.Resize((height // 8, width // 8))(viewed_image[view_name])
+                low_pass = get_views(["low_pass"], [10])[0]
+                viewed_image[view_name] = low_pass.inverse_view(img[0].clone())
+                viewed_image[view_name] = transforms.Resize((height // 8, width // 8))(viewed_image[view_name])
     
-    # Img latents -> Viewed audio
     audio_latents = latent_transformation(latents, inverse=False)
     spec = audio_diffusion.decode_latents(audio_latents).squeeze(0) # [3, 256, 1024]
-    
     viewed_audio = {}
     for view_name, view in zip(cfg.trainer.views, views):
         if not "pass" in view_name:
