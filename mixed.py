@@ -29,7 +29,7 @@ rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
 from src.utils.rich_utils import print_config_tree
 from src.utils.animation_with_text import create_animation_with_text, create_single_image_animation_with_text
-from src.utils.re_ranking import select_top_k_ranking, select_top_k_clip_ranking
+from src.utils.re_ranking import select_top_k_ranking, select_top_k_clip_ranking, select_top_k_clap_ranking
 from src.utils.pylogger import RankedLogger
 log = RankedLogger(__name__, rank_zero_only=True)
 
@@ -118,6 +118,11 @@ def main(cfg: DictConfig) -> Optional[float]:
         log.info(f"Starting re-ranking and selection by CLIP score!")
         select_top_k_clip_ranking(cfg, clip_scores)
 
+    enable_clap_rank = cfg.trainer.get("enable_clap_rank", False)
+    if enable_clap_rank:
+        log.info(f"Starting re-ranking and selection by CLAP score!")
+        select_top_k_clap_ranking(cfg, clap_scores)
+        
     log.info(f"Finished!")
 
 
