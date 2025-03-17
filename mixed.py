@@ -208,8 +208,10 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
             viewed_image[view_name] = view.view(img[0])
         else:
             if "high" in view_name:
+                print(view_name)
                 viewed_image[view_name] = view.inverse_view(img[0])
             else:
+                print(view_name)
                 viewed_image[view_name] = view.inverse_view(img[0])
                 # viewed_image[view_name] = transforms.Resize((height // 8, width // 8))(viewed_image[view_name])
     
@@ -275,19 +277,9 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     # save audio
     audio_dir = os.path.join(sample_dir, 'audio')
     os.makedirs(audio_dir, exist_ok=True)
-    if not "pass" in cfg.trainer.views[0]:
-        for view_name in cfg.trainer.views:
-            audio_save_path = os.path.join(audio_dir, f'{view_name}.wav')
-            save_audio(viewed_audio[view_name], audio_save_path)
-    else: # save save high/low pass audio
-        for view_name in cfg.trainer.views:
-            audio_save_path = os.path.join(audio_dir, f'{view_name}.wav')
-            if view_name == "high_pass":
-                audio = audio_diffusion.spec_to_audio(spec)
-                audio = np.ravel(audio)
-                save_audio(audio, audio_save_path)
-            else: # low pass: 
-                save_audio(viewed_audio[view_name], audio_save_path)
+    for view_name in cfg.trainer.views:
+        audio_save_path = os.path.join(audio_dir, f'{view_name}.wav')
+        save_audio(viewed_audio[view_name], audio_save_path)
 
     # save spec
     spec_save_path = os.path.join(sample_dir, f'spec.png')
