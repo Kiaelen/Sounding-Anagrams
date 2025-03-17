@@ -42,3 +42,18 @@ class SWAP(BaseView):
                             p1=h, 
                             p2=w//2)
         return im_rearr
+    
+    def make_frame(self, im, t):
+        im_size = im.size[0]
+        frame_size = int(im_size * 1.5)
+        theta = t * -90
+
+        frame = Image.new('RGB', (frame_size, frame_size), (255, 255, 255))
+        centered_loc = (frame_size - im_size) // 2
+        frame.paste(im, (centered_loc, centered_loc))
+        frame = frame.rotate(theta, 
+                             resample=Image.Resampling.BILINEAR, 
+                             expand=False, 
+                             fillcolor=(255,255,255))
+
+        return frame

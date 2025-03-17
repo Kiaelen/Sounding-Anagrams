@@ -8,7 +8,7 @@ defaults:
 
 seed: 19260817
 log_dir: 'results'
-task_name: 'test'
+task_name: 'swap_image_car'
 output_dir: ${log_dir}/${task_name}
 
 trainer:
@@ -22,31 +22,31 @@ trainer:
   
   # TUNE THE FOLLOWING PARAMETERS
   # number of samples
-  num_samples: 10
+  num_samples: 1
 
   # rank or not
-  enable_rank: True
+  enable_rank: False
   enable_clip_rank: False
   enable_clap_rank: False
   top_ranks: 0.2
 
   # views
-  views: ['identity', 'patch_permute']
+  views: ['identity', 'swap']
 
   # image guidance
-  image_prompt: ['painting of trucks, lithograph style, grayscale', 
-          'painting of a bell tower, lithograph style, grayscale']
+  image_prompt: ['painting of cars, lithograph style, grayscale', 
+          'painting of cars, lithograph style, grayscale']
 
   # audio guidance
-  audio_prompt: ['trucks beeping', 'bell ringing']
+  audio_prompt: ['bell ringing', 'bird chirping']
 
   # anagram image weight
-  anagram_image_weight: [0.4, 0.6]
+  anagram_image_weight: [0.5, 0.5]
   # anagram audio weight
-  anagram_audio_weight: [0.5, 0.5]
+  anagram_audio_weight: [0, 1]
 
   # audio_weight
-  audio_weight: 0.4
+  audio_weight: 0
 
   image_neg_prompt: ''
   image_guidance_scale: 10.0
@@ -88,6 +88,3 @@ visual_evaluator:
 extras:
   ignore_warnings: true
   print_config: true
-
-
-
