@@ -9,11 +9,21 @@ Adapted from [image-that-sound](https://github.com/IFICL/images-that-sound) and 
 
 We use the combined score 
 
-$$\displaystyle \epsilon^t_{\text{combined}}(z_t)=w_{\text{s}}\epsilon_{\theta_{s}}(z_t,t,y_s)+(1-w^{\text{s}})\sum_{v \in \text{views}}w_vv^{-1}(\epsilon_{\theta_{i}}(v(z_t),t,y_i))$$
+$$\displaystyle \epsilon^t_{\text{combined}}(z_t)=W\epsilon^t_{\text{audio}}(z_t)+(1-W)\epsilon_{\text{image}}^t(z_t),$$
+where
 
-s.t. $w_v=1, \forall v$ for gaussian-blur hybrids and $\sum_v w_v=1$ for other anagram types.
+$$\epsilon^t_{\text{audio}}(z_t)=\sum_{v \in \text{views}}w^a_{v}v^{-1}(\epsilon_{\theta_{a}}(v(z_t),t,y^a_v)),$$
+$$\epsilon^t_{\text{image}}(z_t)=\sum_{v \in \text{views}}w^i_{v}v^{-1}(\epsilon_{\theta_{i}}(v(z_t),t,y^i_v)),$$
 
-Here $z_t$ is the latent at timestep $t$; $w_s$ is the audio weight, $w_v$ is the anagram balance weight; $y_s$ is the audio prompt, $y_i$ is the image prompt; $\epsilon_{\theta_s}$ is the audio score predictor, $\epsilon_{\theta_i}$ is the image score predictor.
+s.t. $w^a_v=w^i_v=1, \forall v$ for gaussian-blur hybrids, and $\sum_v w^a_v=\sum w^i_v=1$ for other anagram types.
+
+Notations:
+- $z_t$ -> latent at timestep $t$
+- $W$ -> audio weight of the image
+- $w^i_v$ and $w^a_v$ -> anagram image/audio weight. Used to control visual/auditory emphasis on different views
+- $y_v^i$ and $y_v^a$ -> image/audio prompts for different views
+- $\epsilon_{\theta_s}$ -> audio denoisor
+- $\epsilon_{\theta_i}$ -> image denoisor
 
 This method works for all invertible views by the linearity of the denoising process.
 
