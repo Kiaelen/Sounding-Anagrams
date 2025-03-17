@@ -6,7 +6,7 @@ defaults:
   - experiment: null
   - debug: null
 
-seed: 6662333
+seed: 66623333
 log_dir: 'results'
 task_name: 'test'
 output_dir: ${log_dir}/${task_name}
@@ -41,7 +41,7 @@ trainer:
   audio_prompt: ['bell ringing', 'cow moo']
 
   # anagram image weight
-  anagram_image_weight: [0.5, 1.5]
+  anagram_image_weight: [1, 1]
   # anagram audio weight
   anagram_audio_weight: [1, 1]
 

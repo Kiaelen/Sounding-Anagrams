@@ -211,7 +211,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
                 viewed_image[view_name] = img[0]
             else:
                 viewed_image[view_name] = view.inverse_view(img[0])
-                viewed_image[view_name] = transforms.Resize((height // 8, width // 8))(viewed_image[view_name])
+                # viewed_image[view_name] = transforms.Resize((height // 8, width // 8))(viewed_image[view_name])
     
     # Img latents -> Viewed audio
     audio_latents = latent_transformation(latents, inverse=False)
