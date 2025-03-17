@@ -224,7 +224,8 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
             if "high" in view_name:
                 viewed_spec = spec
             else:
-                viewed_spec = view.inverse_view(spec)
+                low_pass = get_views(["low_pass"], [10])[0]
+                viewed_spec = low_pass.inverse_view(spec.clone())
         audio = audio_diffusion.spec_to_audio(viewed_spec)
         audio = np.ravel(audio)
         viewed_audio[view_name] = audio
