@@ -8,7 +8,7 @@ defaults:
 
 seed: 6662333
 log_dir: 'results'
-task_name: 'gaussian_castle_car'
+task_name: 'test'
 output_dir: ${log_dir}/${task_name}
 
 trainer:
@@ -34,19 +34,19 @@ trainer:
   views: ['high_pass', 'low_pass']
 
   # image guidance
-  image_prompt: ['painting of bell tower, lithograph style, grayscale', 
-          'painting of car, lithograph style, grayscale']
+  image_prompt: ['painting of a Albert Einstein, lithograph style, grayscale', 
+          'painting of a Marilyn Monroe, lithograph style, grayscale']
 
   # audio guidance
-  audio_prompt: ['bell ringing', 'car beeping']
+  audio_prompt: ['bell ringing', 'cow moo']
 
   # anagram image weight
-  anagram_image_weight: [1, 1]
+  anagram_image_weight: [0.5, 1.5]
   # anagram audio weight
   anagram_audio_weight: [1, 1]
 
   # audio_weight
-  audio_weight: 0.5
+  audio_weight: 0
 
   image_neg_prompt: ''
   image_guidance_scale: 10.0
