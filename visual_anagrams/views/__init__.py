@@ -19,9 +19,11 @@ from .view_hybrid import HybridLowPassView, HybridHighPassView, \
 from .view_color import ColorView, GrayscaleView
 from .view_motion import MotionBlurResView, MotionBlurView
 from .view_scale import ScaleView
+from .swap import SWAP
 
 VIEW_MAP = {
     'identity': IdentityView,
+    'swap': SWAP,
     'flip': FlipView,
     'rotate_cw': Rotate90CWView,
     'rotate_ccw': Rotate90CCWView,
