@@ -8,7 +8,7 @@ defaults:
 
 seed: 6662333
 log_dir: 'results'
-task_name: 'permute_cat_flower'
+task_name: 'gaussian_castle_car'
 output_dir: ${log_dir}/${task_name}
 
 trainer:
@@ -31,19 +31,19 @@ trainer:
   top_ranks: 0.2
 
   # views
-  views: ['identity', 'patch_permute']
+  views: ['high_pass', 'low_pass']
 
   # image guidance
-  image_prompt: ['painting of cats, lithograph style, grayscale', 
-          'painting of flowers, lithograph style, grayscale']
+  image_prompt: ['painting of bell tower, lithograph style, grayscale', 
+          'painting of car, lithograph style, grayscale']
 
   # audio guidance
-  audio_prompt: ['cat meowing', 'bird chirping']
+  audio_prompt: ['bell ringing', 'car beeping']
 
   # anagram image weight
-  anagram_image_weight: [0.45, 0.55]
+  anagram_image_weight: [1, 1]
   # anagram audio weight
-  anagram_audio_weight: [0.5, 0.5]
+  anagram_audio_weight: [1, 1]
 
   # audio_weight
   audio_weight: 0.5
