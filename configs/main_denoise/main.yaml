@@ -25,9 +25,9 @@ trainer:
   num_samples: 10
 
   # rank or not
-  enable_rank: False
+  enable_rank: True
   enable_clip_rank: False
-  enable_clap_rank: True
+  enable_clap_rank: False
   top_ranks: 0.2
 
   # views
