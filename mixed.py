@@ -265,7 +265,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
             if view_name == "high_pass":        
                 save_image(img[0], img_save_path)
             else: # low pass: 
-                h, w = img[0].shape[1:]
+                h, w = viewed_image[view_name].shape[1:]
                 resized_img = transforms.Resize((h // 8, w // 8))(viewed_image[view_name])
                 save_image(resized_img, img_save_path)
 
