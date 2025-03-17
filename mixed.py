@@ -204,7 +204,14 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     img = image_diffusion.decode_latents(latents) # [1, 3, H, W]
     viewed_image = {}
     for view_name, view in zip(cfg.trainer.views, views):
-        viewed_image[view_name] = view.view(img[0])
+        if not "pass" in view_name:
+            viewed_image[view_name] = view.view(img[0])
+        else:
+            if "high" in view_name:
+                viewed_image[view_name] = img[0]
+            else:
+                viewed_image[view_name] = view.inverse_view(img[0])
+                viewed_image[view_name] = transforms.Resize((height // 8, width // 8))(viewed_image[view_name])
     
     # Img latents -> Viewed audio
     audio_latents = latent_transformation(latents, inverse=False)
@@ -212,7 +219,13 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     
     viewed_audio = {}
     for view_name, view in zip(cfg.trainer.views, views):
-        viewed_spec = view.view(spec)
+        if not "pass" in view_name:
+            viewed_spec = view.view(spec)
+        else:
+            if "high" in view_name:
+                viewed_spec = spec
+            else:
+                viewed_spec = view.inverse_view(spec)
         audio = audio_diffusion.spec_to_audio(viewed_spec)
         audio = np.ravel(audio)
         viewed_audio[view_name] = audio
@@ -255,19 +268,9 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     # save image
     image_dir = os.path.join(sample_dir, 'image')
     os.makedirs(image_dir, exist_ok=True)
-    if not "pass" in cfg.trainer.views[0]:
-        for view_name in cfg.trainer.views:
-            img_save_path = os.path.join(image_dir, f'{view_name}.png')
-            save_image(viewed_image[view_name], img_save_path)
-    else: # save high/low pass image:
-        for view_name in cfg.trainer.views:
-            img_save_path = os.path.join(image_dir, f'{view_name}.png')
-            if view_name == "high_pass":        
-                save_image(img[0], img_save_path)
-            else: # low pass: 
-                h, w = viewed_image[view_name].shape[1:]
-                resized_img = transforms.Resize((h // 8, w // 8))(viewed_image[view_name])
-                save_image(resized_img, img_save_path)
+    for view_name in cfg.trainer.views:
+        img_save_path = os.path.join(image_dir, f'{view_name}.png')
+        save_image(viewed_image[view_name], img_save_path)
 
     # save audio
     audio_dir = os.path.join(sample_dir, 'audio')
