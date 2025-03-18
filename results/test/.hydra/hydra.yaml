@@ -151,7 +151,7 @@ hydra:
     - path: ''
       schema: structured
       provider: schema
-    output_dir: /content/Mixed-Diffusion/results/permute_cat_dog
+    output_dir: /content/Mixed-Diffusion/results/rotate_park_plane
     choices:
       debug: null
       experiment: null
