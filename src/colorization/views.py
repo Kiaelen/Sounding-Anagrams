@@ -44,7 +44,7 @@ class LView_Composit():
     
     def imprint(self, im):
         f, s = self.Lview, self.cps_view
-        return f.inverse_view(s.view(im))
+        return f.inverse_view(im)
     
 class ABView_Composit():
     def __init__(self, cps_view):
@@ -61,4 +61,4 @@ class ABView_Composit():
     
     def imprint(self, im):
         f, s = self.ABview, self.cps_view
-        return f.inverse_view(s.view(im))
+        return f.inverse_view(im)

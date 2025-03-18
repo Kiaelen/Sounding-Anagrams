@@ -168,12 +168,14 @@ if __name__ == '__main__':
     
     # Get prompts
     cfg = cfg["trainer"]
-    img_prompts = [prompt.split(',')[0] for prompt in cfg["image_prompt"]]
-    # img_prompts = [cfg['image_prompt'][0].split(',')[0]]
+    # img_prompts = [prompt.split(',')[0] for prompt in cfg["image_prompt"]]
+    img_prompts = [cfg['image_prompt'][1].split(',')[0]]
+    
+    print(img_prompts)
     
     # Get views
-    view_names = cfg["views"]
-    # view_names = ["identity"]
+    # view_names = cfg["views"]
+    view_names = ["rotate_cw"]
     views = get_views(view_names)
     
     # Load gray image
@@ -198,6 +200,9 @@ if __name__ == '__main__':
     for i in tqdm(range(args.num_samples), desc="Sampling images"):
         generator = torch.manual_seed(args.seed + i)
         image = colorizer(gray_im, img_prompts, generator=generator)
+        
+        view_names = cfg["views"]
+        views = get_views(view_names)
         
         for view_name, view in zip(view_names, views):
             img = view.view(image[0])

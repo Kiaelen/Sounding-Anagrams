@@ -67,8 +67,8 @@ def sample_stage_1(
 
                 # Replace component in noisy images with component from fixed image
                 
-                im_noisy_component = views[0].inverse_view(im_noisy).to(noisy_images.device).to(noisy_images.dtype)
-                noisy_images_component = views[1].inverse_view(noisy_images[0])
+                im_noisy_component = views[0].imprint(im_noisy).to(noisy_images.device).to(noisy_images.dtype)
+                noisy_images_component = views[1].imprint(noisy_images[0])
                 noisy_images = im_noisy_component + noisy_images_component
                 noisy_images = noisy_images[None] / 2.
 
@@ -215,8 +215,8 @@ def sample_stage_2(
             im_noisy = torch.sqrt(alpha_cumprod) * fixed_im + torch.sqrt(1 - alpha_cumprod) * torch.randn_like(fixed_im)
 
             # Replace component in noisy images with componen from fixed image
-            im_noisy_component = views[0].inverse_view(im_noisy).to(noisy_images.device).to(noisy_images.dtype)
-            noisy_images_component = views[1].inverse_view(noisy_images[0])
+            im_noisy_component = views[0].imprint(im_noisy).to(noisy_images.device).to(noisy_images.dtype)
+            noisy_images_component = views[1].imprint(noisy_images[0])
             noisy_images = im_noisy_component + noisy_images_component
 
             # Correct for factor of 2 TODO: Fix this....
