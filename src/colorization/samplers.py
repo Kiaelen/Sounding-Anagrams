@@ -66,18 +66,13 @@ def sample_stage_1(
                 im_noisy = torch.sqrt(alpha_cumprod) * fixed_im + torch.sqrt(1 - alpha_cumprod) * torch.randn_like(fixed_im)
 
                 # Replace component in noisy images with component from fixed image
-                im_noisy_component = torch.zeros(im_noisy.shape, device=noisy_images.device, dtype=noisy_images.dtype)
-                noisy_images_component = torch.zeros(im_noisy.shape, device=noisy_images.device, dtype=noisy_images.dtype)
-                
-                for i, view in enumerate(views):
-                    if i % 2 == 0:
-                        im_noisy_component += view.imprint(im_noisy)
-                    else:
-                        noisy_images_component += view.imprint(noisy_images[0])
-                        
+                im_noisy_component = views[0].inverse_view(im_noisy).to(noisy_images.device).to(noisy_images.dtype)
+                noisy_images_component = views[1].inverse_view(noisy_images[0])
                 noisy_images = im_noisy_component + noisy_images_component
-                noisy_images = noisy_images[None] / len(views)
-                
+
+                # Correct for factor of 2 from view TODO: Fix this....
+                noisy_images = noisy_images[None] / 2.
+
                 # "Reset" diffusion by replacing noisy images with noisy version
                 # of grayscale image. All diffusion steps before this one are "thrown away"
                 if i == start_diffusion_step:
@@ -88,6 +83,7 @@ def sample_stage_1(
             for view_fn in views:
                 viewed_noisy_images.append(view_fn.view(noisy_images[0]))
             viewed_noisy_images = torch.stack(viewed_noisy_images)
+
             # Duplicate inputs for CFG
             # Model input is: [ neg_0, neg_1, ..., pos_0, pos_1, ... ]
             model_input = torch.cat([viewed_noisy_images] * 2)
@@ -101,21 +97,24 @@ def sample_stage_1(
                 cross_attention_kwargs=None,
                 return_dict=False,
             )[0]
+
             # Extract uncond (neg) and cond noise estimates
             noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
+
             # Invert the unconditional (negative) estimates
             inverted_preds = []
             for pred, view in zip(noise_pred_uncond, views):
                 inverted_pred = view.inverse_view(pred)
                 inverted_preds.append(inverted_pred)
             noise_pred_uncond = torch.stack(inverted_preds)
+
             # Invert the conditional estimates
             inverted_preds = []
             for pred, view in zip(noise_pred_text, views):
                 inverted_pred = view.inverse_view(pred)
                 inverted_preds.append(inverted_pred)
             noise_pred_text = torch.stack(inverted_preds)
-            print(noise_pred_uncond.shape)
+
             # Split into noise estimate and variance estimates
             noise_pred_uncond, _ = noise_pred_uncond.split(model_input.shape[1], dim=1)
             noise_pred_text, predicted_variance = noise_pred_text.split(model_input.shape[1], dim=1)
@@ -217,22 +216,11 @@ def sample_stage_2(
             im_noisy = torch.sqrt(alpha_cumprod) * fixed_im + torch.sqrt(1 - alpha_cumprod) * torch.randn_like(fixed_im)
 
             # Replace component in noisy images with componen from fixed image
-            # im_noisy_component = torch.zeros(im_noisy.shape, device=noisy_images.device, dtype=noisy_images.dtype)
-            # noisy_images_component = torch.zeros(im_noisy.shape, device=noisy_images.device, dtype=noisy_images.dtype)
-            # for i, view in enumerate(views):
-            #     if i % 2 == 0:
-            #         im_noisy_component += view.imprint(im_noisy)
-            #     else:
-            #         noisy_images_component += view.imprint(noisy_images[0])
-            # noisy_images = im_noisy_component + noisy_images_component
-
-            # # Correct for factor of 2 from view TODO: Fix this....
-            # noisy_images = noisy_images[None] / len(views)
             im_noisy_component = views[0].inverse_view(im_noisy).to(noisy_images.device).to(noisy_images.dtype)
             noisy_images_component = views[1].inverse_view(noisy_images[0])
             noisy_images = im_noisy_component + noisy_images_component
 
-            # Correct for factor of 2 from view TODO: Fix this....
+            # Correct for factor of 2 TODO: Fix this....
             noisy_images = noisy_images[None] / 2.
 
         # Cat noisy image with upscaled conditioning image
