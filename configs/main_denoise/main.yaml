@@ -43,7 +43,7 @@ trainer:
   # anagram image weight
   anagram_image_weight: [0.45, 0.55]
   # anagram audio weight
-  anagram_audio_weight: [0.45, 0.55]
+  anagram_audio_weight: [0.4, 0.6]
 
   # audio_weight
   audio_weight: 0.5

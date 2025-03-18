@@ -66,8 +66,6 @@ def estimate_noise(diffusion, latents, t, text_embeddings, guidance_scale):
 def main(cfg: DictConfig) -> Optional[float]:
     """Main function for training
     """
-
-    torch.manual_seed(cfg.seed)
     views = get_views(cfg.trainer.views)
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")

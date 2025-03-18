@@ -10,7 +10,7 @@ from .view_base import BaseView
 
 
 class PatchPermuteView(BaseView):
-    def __init__(self, num_patches1, num_patches2):
+    def __init__(self, num_patches1, num_patches2, seed=42):
         '''
         Implements random patch permutations, with `num_patches`
             patches per side
@@ -27,7 +27,7 @@ class PatchPermuteView(BaseView):
         self.num_patches2 = num_patches2
 
         # Get random permutation and inverse permutation
-        self.perm = torch.randperm(self.num_patches1 * self.num_patches2)
+        self.perm = torch.randperm(self.num_patches1 * self.num_patches2, seed=seed)
         self.perm_inv = get_inv_perm(self.perm)
 
     def view(self, im):
