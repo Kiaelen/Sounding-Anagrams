@@ -69,6 +69,8 @@ def main(cfg: DictConfig) -> Optional[float]:
 
     views = get_views(cfg.trainer.views)
 
+    torch.manual_seed(cfg.seed + idx)
+
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     log.info(f"Instantiating Image Diffusion model <{cfg.image_diffusion_guidance._target_}>")
@@ -139,8 +141,6 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     crop_image = cfg.trainer.get("crop_image", False)
     anagram_image_weight = cfg.trainer.get("anagram_image_weight", [0.5, 0.5])
     anagram_audio_weight = cfg.trainer.get("anagram_audio_weight", [0.5, 0.5])
-    
-    generator = torch.manual_seed(cfg.seed + idx)
 
     num_views = len(views)
 
@@ -151,7 +151,7 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     scheduler.set_timesteps(cfg.trainer.num_inference_steps)
 
     # init random latents
-    latents = torch.randn((image_text_embeds[0].shape[0] // 2, image_diffusion.unet.config.in_channels, height // 8, width // 8), generator=generator, dtype=image_diffusion.precision_t).to(device)
+    latents = torch.randn((image_text_embeds[0].shape[0] // 2, image_diffusion.unet.config.in_channels, height // 8, width // 8), dtype=image_diffusion.precision_t).to(device)
 
     for i, t in enumerate(scheduler.timesteps):
         # multiview image noise

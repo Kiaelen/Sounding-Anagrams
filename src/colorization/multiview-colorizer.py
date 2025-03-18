@@ -159,19 +159,21 @@ if __name__ == '__main__':
     args = parser.parse_args()
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-    # Get prompts
+    # set random seed
     sample_dir = args.sample_dir
     cfg_path = os.path.join(sample_dir, "config.yaml")
     with open(cfg_path, 'r') as f:
         cfg = yaml.load(f, Loader=yaml.SafeLoader)
-    cfg = cfg["trainer"]
+    torch.manual_seed(cfg["seed"])
     
-    # img_prompts = [prompt.split(',')[0] for prompt in cfg["image_prompt"]]
-    img_prompts = [cfg['image_prompt'][0].split(',')[0]]
+    # Get prompts
+    cfg = cfg["trainer"]
+    img_prompts = [prompt.split(',')[0] for prompt in cfg["image_prompt"]]
+    # img_prompts = [cfg['image_prompt'][0].split(',')[0]]
     
     # Get views
-    # view_names = cfg["views"]
-    view_names = ["identity"]
+    view_names = cfg["views"]
+    # view_names = ["identity"]
     views = get_views(view_names)
     
     # Load gray image

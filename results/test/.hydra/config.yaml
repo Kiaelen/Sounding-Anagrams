@@ -1,6 +1,6 @@
-seed: 1234567
+seed: 12345
 log_dir: results
-task_name: permute_cat_dog
+task_name: rotate_park_plane
 output_dir: ${log_dir}/${task_name}
 trainer:
   num_inference_steps: 100
@@ -17,20 +17,20 @@ trainer:
   top_ranks: 0.2
   views:
   - identity
-  - patch_permute
+  - rotate_cw
   image_prompt:
-  - painting of cats, lithograph style, grayscale
-  - painting of a dogs, lithograph style, grayscale
+  - painting of a park, lithograph style, grayscale
+  - painting of a plane, lithograph style, grayscale
   audio_prompt:
-  - cat meow
-  - dog bark
+  - bird chirping
+  - airline fly by
   anagram_image_weight:
-  - 0.45
-  - 0.55
+  - 0.4
+  - 0.6
   anagram_audio_weight:
-  - 0.45
-  - 0.55
-  audio_weight: 0.5
+  - 0.5
+  - 0.5
+  audio_weight: 0.4
   image_neg_prompt: ''
   image_guidance_scale: 10.0
   image_start_step: 5
