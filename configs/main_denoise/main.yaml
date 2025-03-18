@@ -12,7 +12,7 @@ task_name: 'permute_cat_dog'
 output_dir: ${log_dir}/${task_name}
 
 trainer:
-  num_inference_steps: 100
+  num_inference_steps: 50
   img_height: 256
   img_width: 1024
   cutoff_latent: false
