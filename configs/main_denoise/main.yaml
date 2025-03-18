@@ -6,7 +6,7 @@ defaults:
   - experiment: null
   - debug: null
 
-seed: 1234567
+seed: 42
 log_dir: 'results'
 task_name: 'permute_cat_dog'
 output_dir: ${log_dir}/${task_name}
@@ -22,7 +22,7 @@ trainer:
   
   # TUNE THE FOLLOWING PARAMETERS
   # number of samples
-  num_samples: 1
+  num_samples: 2
 
   # rank or not
   enable_rank: False
