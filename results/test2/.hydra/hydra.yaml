@@ -137,12 +137,12 @@ hydra:
   runtime:
     version: 1.4.0.dev1
     version_base: '1.3'
-    cwd: /content/Mixed-Diffusion
+    cwd: /content/Sounding-Anagrams
     config_sources:
     - path: hydra.conf
       schema: pkg
       provider: hydra
-    - path: /content/Mixed-Diffusion/configs/main_denoise
+    - path: /content/Sounding-Anagrams/configs/main_denoise
       schema: file
       provider: main
     - path: hydra_plugins.hydra_colorlog.conf
@@ -151,7 +151,7 @@ hydra:
     - path: ''
       schema: structured
       provider: schema
-    output_dir: /content/Mixed-Diffusion/results/permute_cat_dog
+    output_dir: /content/Sounding-Anagrams/results/permute_cat_dog
     choices:
       debug: null
       experiment: null

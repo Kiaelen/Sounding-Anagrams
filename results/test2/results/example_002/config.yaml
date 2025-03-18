@@ -1,4 +1,4 @@
-seed: 1234568
+seed: 43
 log_dir: results
 task_name: permute_cat_dog
 output_dir: ${log_dir}/${task_name}
@@ -28,8 +28,8 @@ trainer:
   - 0.45
   - 0.55
   anagram_audio_weight:
-  - 0.45
-  - 0.55
+  - 0.4
+  - 0.6
   audio_weight: 0.5
   image_neg_prompt: ''
   image_guidance_scale: 10.0
@@ -66,5 +66,5 @@ visual_evaluator:
 extras:
   ignore_warnings: true
   print_config: true
-clip_score: 0.5272812080383301
-clap_score: 0.00018908828496932983
+clip_score: 0.5553793334960937
+clap_score: 0.11453472077846527
