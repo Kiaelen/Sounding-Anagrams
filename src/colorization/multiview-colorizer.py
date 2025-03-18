@@ -54,10 +54,9 @@ class FactorizedColorization(nn.Module):
         self.inverse_color = inverse_color
 
         # get views
-        # self.views = []
-        # for view in views:
-        #     self.views += [LView_Composit(view), ABView_Composit(view)]
-        self.views = [LView_Composit(view), ABView_Composit(view)]
+        self.views = []
+        for view in views:
+            self.views += [LView_Composit(view), ABView_Composit(view)]
 
         self.num_inference_steps = kwargs.get("num_inference_steps", 30)
         self.guidance_scale = kwargs.get("guidance_scale", 10.0)
