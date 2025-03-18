@@ -28,3 +28,36 @@ class ColorABView():
 
         return noise
 
+class LView_Composit():
+    def __init__(self, cps_view):
+        self.Lview = ColorLView()
+        self.cps_view = cps_view
+        
+    def view(self, im):
+        f, s = self.Lview, self.cps_view
+        return s.view(f.view(im))
+    
+    def inverse_view(self, noise):
+        f, s = self.Lview, self.cps_view
+        return f.inverse_view(s.inverse_view(noise))
+    
+    def imprint(self, im):
+        f, s = self.Lview, self.cps_view
+        return f.inverse_view(s.view(im))
+    
+class ABView_Composit():
+    def __init__(self, cps_view):
+        self.Lview = ColorABView()
+        self.cps_view = cps_view
+        
+    def view(self, im):
+        f, s = self.Lview, self.cps_view
+        return s.view(f.view(im))
+    
+    def inverse_view(self, noise):
+        f, s = self.Lview, self.cps_view
+        return f.inverse_view(s.inverse_view(noise))
+    
+    def imprint(self, im):
+        f, s = self.Lview, self.cps_view
+        return f.inverse_view(s.view(im))

@@ -12,11 +12,12 @@ import yaml
 
 from diffusers import DiffusionPipeline
 
-
 import rootutils
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
-from src.colorization.views import ColorLView, ColorABView
+from visual_anagrams.views import get_views
+
+from src.colorization.views import LView_Composit, ABView_Composit
 from src.colorization.samplers import sample_stage_1, sample_stage_2
 
 
@@ -26,6 +27,7 @@ class FactorizedColorization(nn.Module):
     '''
     def __init__(
         self, 
+        views,
         inverse_color=False,
         **kwargs
     ):
@@ -52,7 +54,9 @@ class FactorizedColorization(nn.Module):
         self.inverse_color = inverse_color
 
         # get views
-        self.views = [ColorLView(), ColorABView()]
+        self.views = []
+        for view in views:
+            self.views += [LView_Composit(view), ABView_Composit(view)]
 
         self.num_inference_steps = kwargs.get("num_inference_steps", 30)
         self.guidance_scale = kwargs.get("guidance_scale", 10.0)
@@ -64,7 +68,9 @@ class FactorizedColorization(nn.Module):
     def get_text_embeds(self, prompt):
         # Get prompt embeddings (need two, because code is designed for 
         # two components: L and ab)
-        prompts = [prompt] * 2
+        prompts = []
+        for p in prompt:
+            prompts += [p] * 2
         prompt_embeds = [self.stage_1.encode_prompt(p) for p in prompts]
         prompt_embeds, negative_prompt_embeds = zip(*prompt_embeds)
         prompt_embeds = torch.cat(prompt_embeds)
@@ -81,6 +87,7 @@ class FactorizedColorization(nn.Module):
         noise_level=None, 
         generator=None
     ):  
+        
         # 1. overwrite the hyparams if provided
         num_inference_steps = self.num_inference_steps if num_inference_steps is None else num_inference_steps
         guidance_scale = self.guidance_scale if guidance_scale is None else guidance_scale
@@ -134,24 +141,13 @@ class FactorizedColorization(nn.Module):
         image = image / 2 + 0.5 
         return image
 
-
-# python colorizer.py --name colorize.castle.full --gray_im_path ./imgs/castle.full.png --prompt "a colorful photo of a white castle with bell towers" --num_samples 4 --guidance_scale 10 --num_inference_steps 30 --start_diffusion_step 7
-
-# python colorizer.py --name colorize.racing.full --gray_im_path ./imgs/racing.full.png --prompt "a colorful photo of a auto racing game" --num_samples 4 --guidance_scale 10 --num_inference_steps 30 --start_diffusion_step 7
-
-# python colorizer.py --name colorize.tiger.full --gray_im_path ./imgs/tiger.full.png --prompt "a colorful photo of a tigers" --num_samples 4 --guidance_scale 10 --num_inference_steps 30 --start_diffusion_step 7
-
-# python colorizer.py --name colorize.dog.full --gray_im_path ./imgs/dog.full.png --prompt "a colorful photo of puppies on green grass" --num_samples 4 --guidance_scale 10.0 --num_inference_steps 30 --start_diffusion_step 7
-
-# python colorizer.py --name colorize.spec.full --gray_im_path ./imgs/spec.full.png --prompt "a colorful photo of kittens" --num_samples 8 --guidance_scale 10.0 --num_inference_steps 30 --start_diffusion_step 0
-
 if __name__ == '__main__':
     # Parse args
     parser = argparse.ArgumentParser()
     # parser.add_argument("--name", required=True, type=str)
     parser.add_argument("--sample_dir", required=True, type=str)
     # parser.add_argument("--prompt", required=True, type=str, help='Prompts to use for colorization')
-    parser.add_argument("--num_samples", type=int, default=4)
+    parser.add_argument("--num_samples", type=int, default=1)
     parser.add_argument("--guidance_scale", type=float, default=10.0)
     parser.add_argument("--num_inference_steps", type=int, default=30)
     parser.add_argument("--seed", type=int, default=0)
@@ -163,31 +159,42 @@ if __name__ == '__main__':
     args = parser.parse_args()
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
+    # Get prompts
+    sample_dir = args.sample_dir
+    cfg_path = os.path.join(sample_dir, "config.yaml")
+    with open(cfg_path, 'r') as f:
+        cfg = yaml.load(f, Loader=yaml.SafeLoader)
+    cfg = cfg["trainer"]
+    
+    img_prompts = [f"a colorful {prompt.split(',')[0]}" for prompt in cfg["image_prompt"]]
+    
+    # Get views
+    view_names = cfg["views"]
+    views = get_views(view_names)
+    
+    # Load gray image
+    img_path = os.path.join(sample_dir, "image", "identity.png")
+    gray_im = Image.open(img_path)
+    gray_im = TF.to_tensor(gray_im).to(device)
+
+    save_dir = os.path.join(sample_dir, "colored_image")
+    os.makedirs(save_dir, exist_ok=True)
+
     # create diffusion colorization instance 
     colorizer = FactorizedColorization(
+        views=views,
         inverse_color=False,
         num_inference_steps=args.num_inference_steps,
         guidance_scale=args.guidance_scale,
         start_diffusion_step=args.start_diffusion_step,
         noise_level=args.noise_level,
     ).to(device)
-
-    sample_dir = args.sample_dir
-    cfg_path = os.path.join(sample_dir, "config.yaml")
-    with open(cfg_path, 'r') as f:
-        cfg = yaml.load(f, Loader=yaml.SafeLoader)
-    print(cfg)
     
-    # Load gray image
-    
-    # gray_im = Image.open(args.gray_im_path)
-    # gray_im = TF.to_tensor(gray_im).to(device)
-
-    # save_dir = os.path.join('results', args.name)
-    # os.makedirs(save_dir, exist_ok=True)
-
     # # Sample illusions
-    # for i in tqdm(range(args.num_samples), desc="Sampling images"):
-    #     generator = torch.manual_seed(args.seed + i)
-    #     image = colorizer(gray_im, args.prompt, generator=generator)
-    #     save_image(image, f'{save_dir}/{i:04}.png', padding=0)
+    for i in tqdm(range(args.num_samples), desc="Sampling images"):
+        generator = torch.manual_seed(args.seed + i)
+        image = colorizer(gray_im, img_prompts, generator=generator)
+        
+        for view_name, view in zip(view_names, views):
+            img = view.view(image)
+            save_image(img, f'{save_dir}/{i}.{view_name}.png', padding=0)
