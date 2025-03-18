@@ -88,7 +88,6 @@ def sample_stage_1(
             for view_fn in views:
                 viewed_noisy_images.append(view_fn.view(noisy_images[0]))
             viewed_noisy_images = torch.stack(viewed_noisy_images)
-
             # Duplicate inputs for CFG
             # Model input is: [ neg_0, neg_1, ..., pos_0, pos_1, ... ]
             model_input = torch.cat([viewed_noisy_images] * 2)
@@ -102,24 +101,21 @@ def sample_stage_1(
                 cross_attention_kwargs=None,
                 return_dict=False,
             )[0]
-
             # Extract uncond (neg) and cond noise estimates
             noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
-
             # Invert the unconditional (negative) estimates
             inverted_preds = []
             for pred, view in zip(noise_pred_uncond, views):
                 inverted_pred = view.inverse_view(pred)
                 inverted_preds.append(inverted_pred)
             noise_pred_uncond = torch.stack(inverted_preds)
-
             # Invert the conditional estimates
             inverted_preds = []
             for pred, view in zip(noise_pred_text, views):
                 inverted_pred = view.inverse_view(pred)
                 inverted_preds.append(inverted_pred)
             noise_pred_text = torch.stack(inverted_preds)
-
+            print(noise_pred_uncond.shape)
             # Split into noise estimate and variance estimates
             noise_pred_uncond, _ = noise_pred_uncond.split(model_input.shape[1], dim=1)
             noise_pred_text, predicted_variance = noise_pred_text.split(model_input.shape[1], dim=1)
