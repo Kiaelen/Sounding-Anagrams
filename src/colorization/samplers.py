@@ -70,11 +70,11 @@ def sample_stage_1(
                 noisy_images_component = torch.zeros(im_noisy.shape, device=noisy_images.device, dtype=noisy_images.dtype)
                 for i, view in enumerate(views):
                     if i % 2 == 0:
-                        print(i, view)
                         im_noisy_component += view.imprint(im_noisy)
                     else:
-                        print(i, view)
                         noisy_images_component += view.imprint(noisy_images[0])
+                assert im_noisy_component == views[0].inverse_view(im_noisy), "error"
+                assert noisy_images_component == views[1].inverse_view(noisy_images[0]), "error"
                 noisy_images = im_noisy_component + noisy_images_component
                 print("end")
                 noisy_images = noisy_images[None] / len(views)
