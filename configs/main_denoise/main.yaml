@@ -6,7 +6,7 @@ defaults:
   - experiment: null
   - debug: null
 
-seed: 42
+seed: 19260817
 log_dir: 'results'
 task_name: 'permute_cat_dog'
 output_dir: ${log_dir}/${task_name}
