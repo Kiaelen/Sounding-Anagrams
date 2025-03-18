@@ -73,8 +73,8 @@ def sample_stage_1(
                         im_noisy_component += view.imprint(im_noisy)
                     else:
                         noisy_images_component += view.imprint(noisy_images[0])
-                assert torch.bitwise_and(im_noisy_component == views[0].inverse_view(im_noisy)), "error"
-                assert torch.bitwise_and(noisy_images_component == views[1].inverse_view(noisy_images[0])), "error"
+                assert torch.equal(im_noisy_component, views[0].inverse_view(im_noisy)), "error"
+                assert torch.equal(noisy_images_component, views[1].inverse_view(noisy_images[0])), "error"
                 noisy_images = im_noisy_component + noisy_images_component
                 print("end")
                 noisy_images = noisy_images[None] / len(views)
