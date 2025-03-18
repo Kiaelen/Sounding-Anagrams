@@ -10,6 +10,7 @@ Adapted from [image-that-sound](https://github.com/IFICL/images-that-sound) and 
 We use the combined score 
 
 $$\displaystyle \epsilon^t_{\text{combined}}(z_t)=W\epsilon^t_{\text{audio}}(z_t)+(1-W)\epsilon_{\text{image}}^t(z_t),$$
+
 where
 
 $$\epsilon^t_{\text{audio}}(z_t)=\sum_{v \in \text{views}}w^a_{v}v^{-1}(\epsilon_{\theta_{a}}(v(z_t),t,y^a_v)),$$
