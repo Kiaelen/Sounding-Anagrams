@@ -17,7 +17,7 @@ rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
 from visual_anagrams.views import get_views
 
-from src.colorization.views import LView_Composit, ABView_Composit
+from src.colorization.views import LView_Composit, ABView_Composit, ColorABView, ColorLView
 from src.colorization.samplers import sample_stage_1, sample_stage_2
 
 
@@ -54,9 +54,10 @@ class FactorizedColorization(nn.Module):
         self.inverse_color = inverse_color
 
         # get views
-        self.views = []
-        for view in views:
-            self.views += [LView_Composit(view), ABView_Composit(view)]
+        # self.views = []
+        # for view in views:
+        #     self.views += [LView_Composit(view), ABView_Composit(view)]
+        self.views = [ColorLView(), ColorABView()]
 
         self.num_inference_steps = kwargs.get("num_inference_steps", 30)
         self.guidance_scale = kwargs.get("guidance_scale", 10.0)
@@ -166,10 +167,12 @@ if __name__ == '__main__':
         cfg = yaml.load(f, Loader=yaml.SafeLoader)
     cfg = cfg["trainer"]
     
-    img_prompts = [f"a colorful {prompt.split(',')[0]}" for prompt in cfg["image_prompt"]]
+    # img_prompts = [f"a colorful {prompt.split(',')[0]}" for prompt in cfg["image_prompt"]]
+    img_prompts = [f"a colorful {cfg['image_prompt'][0].split(',')[0]}"]
     
     # Get views
-    view_names = cfg["views"]
+    # view_names = cfg["views"]
+    view_names = ["identity"]
     views = get_views(view_names)
     
     # Load gray image
@@ -196,5 +199,5 @@ if __name__ == '__main__':
         image = colorizer(gray_im, img_prompts, generator=generator)
         
         for view_name, view in zip(view_names, views):
-            img = view.view(image)
+            img = view.view(image[0])
             save_image(img, f'{save_dir}/{i}.{view_name}.png', padding=0)

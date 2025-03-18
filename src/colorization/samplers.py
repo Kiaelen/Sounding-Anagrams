@@ -77,7 +77,7 @@ def sample_stage_1(
 
                 # Correct for factor of 2 from view TODO: Fix this....
                 noisy_images = noisy_images[None] / len(views)
-
+                
                 # "Reset" diffusion by replacing noisy images with noisy version
                 # of grayscale image. All diffusion steps before this one are "thrown away"
                 if i == start_diffusion_step:
