@@ -71,9 +71,9 @@ def sample_stage_1(
                 for i, view in enumerate(views):
                     print(i, view)
                     if i % 2 == 0:
-                        im_noisy_component += view.imprint(im_noisy)
+                        im_noisy_component += views[0].imprint(im_noisy)
                     else:
-                        noisy_images_component += view.imprint(noisy_images[0])
+                        noisy_images_component += views[1].imprint(noisy_images[0])
                 noisy_images = im_noisy_component + noisy_images_component
 
                 noisy_images = noisy_images[None] / len(views)
