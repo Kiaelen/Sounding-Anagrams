@@ -66,24 +66,23 @@ def sample_stage_1(
                 im_noisy = torch.sqrt(alpha_cumprod) * fixed_im + torch.sqrt(1 - alpha_cumprod) * torch.randn_like(fixed_im)
 
                 # Replace component in noisy images with component from fixed image
-                # im_noisy_component = torch.zeros(im_noisy.shape, device=noisy_images.device, dtype=noisy_images.dtype)
-                # noisy_images_component = torch.zeros(im_noisy.shape, device=noisy_images.device, dtype=noisy_images.dtype)
-                # for i, view in enumerate(views):
-                #     if i % 2 == 0:
-                #         im_noisy_component += view.imprint(im_noisy)
-                #     else:
-                #         noisy_images_component += view.imprint(noisy_images[0])
-                # noisy_images = im_noisy_component + noisy_images_component
-
-                # # # Correct for factor of 2 from view TODO: Fix this....
-                # noisy_images = noisy_images[None] / len(views)
-                
-                im_noisy_component = views[0].inverse_view(im_noisy).to(noisy_images.device).to(noisy_images.dtype)
-                noisy_images_component = views[1].inverse_view(noisy_images[0])
+                im_noisy_component = torch.zeros(im_noisy.shape, device=noisy_images.device, dtype=noisy_images.dtype)
+                noisy_images_component = torch.zeros(im_noisy.shape, device=noisy_images.device, dtype=noisy_images.dtype)
+                for i, view in enumerate(views):
+                    if i % 2 == 0:
+                        im_noisy_component += view.imprint(im_noisy)
+                    else:
+                        noisy_images_component += view.imprint(noisy_images[0])
                 noisy_images = im_noisy_component + noisy_images_component
 
-                # Correct for factor of 2 from view TODO: Fix this....
-                noisy_images = noisy_images[None] / 2.
+                noisy_images = noisy_images[None] / len(views)
+                
+                # im_noisy_component = views[0].inverse_view(im_noisy).to(noisy_images.device).to(noisy_images.dtype)
+                # noisy_images_component = views[1].inverse_view(noisy_images[0])
+                # noisy_images = im_noisy_component + noisy_images_component
+
+                # # Correct for factor of 2 from view TODO: Fix this....
+                # noisy_images = noisy_images[None] / 2.
                 
                 # "Reset" diffusion by replacing noisy images with noisy version
                 # of grayscale image. All diffusion steps before this one are "thrown away"
