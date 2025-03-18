@@ -10,10 +10,7 @@ class ColorLView():
 
     def inverse_view(self, noise):
         # Get L color by averaging color channels
-        noise[:3] = 2 * torch.stack([noise[:3].mean(0)] * 3)
-
-        return noise
-        # return torch.cat((2 * torch.stack([noise[:3].mean(0)] * 3), noise[3:]))
+        return torch.cat((2 * torch.stack([noise[:3].mean(0)] * 3), noise[3:]))
 
     def imprint(self, im):
         return self.inverse_view(im)
@@ -27,10 +24,7 @@ class ColorABView():
 
     def inverse_view(self, noise):
         # Get AB color by taking residual
-        noise[:3] = 2 * (noise[:3] - torch.stack([noise[:3].mean(0)] * 3))
-
-        return noise
-        # return torch.cat((2 * (noise[:3] - torch.stack([noise[:3].mean(0)] * 3)), noise[3:]))
+        return torch.cat((2 * (noise[:3] - torch.stack([noise[:3].mean(0)] * 3)), noise[3:]))
     
     def imprint(self, im):
         return self.inverse_view(im)
