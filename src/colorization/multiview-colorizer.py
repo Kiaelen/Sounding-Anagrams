@@ -166,12 +166,12 @@ if __name__ == '__main__':
         cfg = yaml.load(f, Loader=yaml.SafeLoader)
     cfg = cfg["trainer"]
     
-    img_prompts = [prompt.split(',')[0] for prompt in cfg["image_prompt"]]
-    # img_prompts = [cfg['image_prompt'][1].split(',')[0]]
+    # img_prompts = [prompt.split(',')[0] for prompt in cfg["image_prompt"]]
+    img_prompts = [cfg['image_prompt'][0].split(',')[0]]
     
     # Get views
-    view_names = cfg["views"]
-    # view_names = ["rotate_cw"]
+    # view_names = cfg["views"]
+    view_names = ["identity"]
     views = get_views(view_names)
     
     # Load gray image
