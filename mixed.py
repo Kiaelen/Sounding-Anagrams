@@ -101,9 +101,7 @@ def main(cfg: DictConfig) -> Optional[float]:
     clip_scores = []
     clap_scores = []
     
-    for idx in tqdm(range(cfg.trainer.num_samples), desc='Sampling'):
-        torch.manual_seed(cfg.seed + idx)
-        
+    for idx in tqdm(range(cfg.trainer.num_samples), desc='Sampling'):     
         clip_score, clap_score = denoise(cfg, image_diffusion_guidance, audio_diffusion_guidance, scheduler, latent_transformation, visual_evaluator, audio_evaluator, views, idx, device)
         clip_scores.append(clip_score)
         clap_scores.append(clap_score)
@@ -150,7 +148,8 @@ def denoise(cfg, image_diffusion, audio_diffusion, scheduler, latent_transformat
     scheduler.set_timesteps(cfg.trainer.num_inference_steps)
 
     # init random latents
-    latents = torch.randn((image_text_embeds[0].shape[0] // 2, image_diffusion.unet.config.in_channels, height // 8, width // 8), dtype=image_diffusion.precision_t).to(device)
+    generator = torch.manual_seed(cfg.seed + idx)
+    latents = torch.randn((image_text_embeds[0].shape[0] // 2, image_diffusion.unet.config.in_channels, height // 8, width // 8), dtype=image_diffusion.precision_t, generator=generator).to(device)
 
     for i, t in enumerate(scheduler.timesteps):
         # multiview image noise
