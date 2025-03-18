@@ -168,7 +168,7 @@ if __name__ == '__main__':
     cfg = cfg["trainer"]
     
     # img_prompts = [f"a colorful {prompt.split(',')[0]}" for prompt in cfg["image_prompt"]]
-    img_prompts = [f"a colorful {cfg['image_prompt'][0].split(',')[0]}"]
+    img_prompts = cfg['image_prompt'][0].split(',')[0]
     
     # Get views
     # view_names = cfg["views"]

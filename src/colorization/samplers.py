@@ -77,8 +77,8 @@ def sample_stage_1(
 
                 # # Correct for factor of 2 from view TODO: Fix this....
                 # noisy_images = noisy_images[None] / len(views)
-                im_noisy_component = views[0].inverse_view(im_noisy).to(noisy_images.device).to(noisy_images.dtype)
-                noisy_images_component = views[1].inverse_view(noisy_images[0])
+                im_noisy_component = views[0].imprint(im_noisy).to(noisy_images.device).to(noisy_images.dtype)
+                noisy_images_component = views[1].imprint(noisy_images[0])
                 noisy_images = im_noisy_component + noisy_images_component
 
                 # Correct for factor of 2 from view TODO: Fix this....
