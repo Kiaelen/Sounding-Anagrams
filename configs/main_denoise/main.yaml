@@ -6,9 +6,9 @@ defaults:
   - experiment: null
   - debug: null
 
-seed: 66623333
+seed: 1234567
 log_dir: 'results'
-task_name: 'test'
+task_name: 'permute_cat_dog'
 output_dir: ${log_dir}/${task_name}
 
 trainer:
@@ -31,22 +31,22 @@ trainer:
   top_ranks: 0.2
 
   # views
-  views: ['high_pass', 'low_pass']
+  views: ['identity', 'patch_permute']
 
   # image guidance
-  image_prompt: ['painting of a Albert Einstein, lithograph style, grayscale', 
-          'painting of a Marilyn Monroe, lithograph style, grayscale']
+  image_prompt: ['painting of cats, lithograph style, grayscale', 
+          'painting of a dogs, lithograph style, grayscale']
 
   # audio guidance
-  audio_prompt: ['bell ringing', 'cow moo']
+  audio_prompt: ['cat meow', 'dog bark']
 
   # anagram image weight
-  anagram_image_weight: [1, 1]
+  anagram_image_weight: [0.45, 0.55]
   # anagram audio weight
-  anagram_audio_weight: [1, 1]
+  anagram_audio_weight: [0.45, 0.55]
 
   # audio_weight
-  audio_weight: 0
+  audio_weight: 0.5
 
   image_neg_prompt: ''
   image_guidance_scale: 10.0

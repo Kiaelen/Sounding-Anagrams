@@ -67,9 +67,8 @@ def main(cfg: DictConfig) -> Optional[float]:
     """Main function for training
     """
 
+    torch.manual_seed(cfg.seed)
     views = get_views(cfg.trainer.views)
-
-    torch.manual_seed(cfg.seed + idx)
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -105,6 +104,8 @@ def main(cfg: DictConfig) -> Optional[float]:
     clap_scores = []
     
     for idx in tqdm(range(cfg.trainer.num_samples), desc='Sampling'):
+        torch.manual_seed(cfg.seed + idx)
+        
         clip_score, clap_score = denoise(cfg, image_diffusion_guidance, audio_diffusion_guidance, scheduler, latent_transformation, visual_evaluator, audio_evaluator, views, idx, device)
         clip_scores.append(clip_score)
         clap_scores.append(clap_score)
